@@ -6,8 +6,10 @@ import {
   PluginManifest,
   PluginSettingTab,
   Setting,
+  WorkspaceLeaf,
 } from "obsidian";
 
+import { TaskListView } from "./ui/TaskView";
 import { VaultTasks } from "./vault-tasks";
 
 interface MyPluginSettings {
@@ -56,6 +58,12 @@ export default class MyPlugin extends Plugin {
       },
     });
 
+    this.registerView("com.foo.test", function (leaf: WorkspaceLeaf) {
+      const view = new TaskListView(leaf);
+      console.log("view", view);
+      return view;
+    });
+
     this.addSettingTab(new SampleSettingTab(this.app, this));
 
     this.registerCodeMirror((cm: CodeMirror.Editor) => {
@@ -71,8 +79,12 @@ export default class MyPlugin extends Plugin {
     );
 
     if (this.app.workspace.layoutReady) {
+      this.initLeaf();
       await this.prepareIndex();
     } else {
+      this.registerEvent(
+        this.app.workspace.on("layout-ready", () => this.initLeaf())
+      );
       this.registerEvent(
         this.app.workspace.on(
           "layout-ready",
@@ -96,6 +108,15 @@ export default class MyPlugin extends Plugin {
 
   async prepareIndex() {
     await this.vaultTasks.initialize();
+  }
+
+  initLeaf(): void {
+    if (this.app.workspace.getLeavesOfType("com.foo.test").length) {
+      return;
+    }
+    this.app.workspace.getRightLeaf(false).setViewState({
+      type: "com.foo.test",
+    });
   }
 }
 
