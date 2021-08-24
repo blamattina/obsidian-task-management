@@ -8,7 +8,7 @@ const parseTasks = function (contents: string): string[] {
   }
 
   const matches = contents.matchAll(todoRegex);
-  return Array.from(matches, (m: string) => m[1]);
+  return Array.from(matches, (m: string) => m[0]);
 };
 
 class VaultTasks {

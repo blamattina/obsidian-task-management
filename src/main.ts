@@ -58,9 +58,9 @@ export default class MyPlugin extends Plugin {
       },
     });
 
-    this.registerView("com.foo.test", function (leaf: WorkspaceLeaf) {
-      const view = new TaskListView(leaf);
-      console.log("view", view);
+    const { vaultTasks } = this;
+    this.registerView("com.foo.test", (leaf: WorkspaceLeaf) => {
+      const view = new TaskListView(leaf, this.vaultTasks);
       return view;
     });
 
@@ -79,16 +79,12 @@ export default class MyPlugin extends Plugin {
     );
 
     if (this.app.workspace.layoutReady) {
-      this.initLeaf();
-      await this.prepareIndex();
+      this.initialize();
     } else {
-      this.registerEvent(
-        this.app.workspace.on("layout-ready", () => this.initLeaf())
-      );
       this.registerEvent(
         this.app.workspace.on(
           "layout-ready",
-          async () => await this.prepareIndex()
+          async () => await this.initialize()
         )
       );
     }
@@ -106,14 +102,8 @@ export default class MyPlugin extends Plugin {
     await this.saveData(this.settings);
   }
 
-  async prepareIndex() {
+  async initialize() {
     await this.vaultTasks.initialize();
-  }
-
-  initLeaf(): void {
-    if (this.app.workspace.getLeavesOfType("com.foo.test").length) {
-      return;
-    }
     this.app.workspace.getRightLeaf(false).setViewState({
       type: "com.foo.test",
     });
