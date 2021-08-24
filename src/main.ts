@@ -3,9 +3,12 @@ import {
   Modal,
   Notice,
   Plugin,
+  PluginManifest,
   PluginSettingTab,
   Setting,
 } from "obsidian";
+
+import { VaultTasks } from "./vault-tasks";
 
 interface MyPluginSettings {
   mySetting: string;
@@ -17,6 +20,12 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
 
 export default class MyPlugin extends Plugin {
   settings: MyPluginSettings;
+  vaultTasks: VaultTasks;
+
+  constructor(app: App, mainfest: PluginManifest) {
+    super(app, mainfest);
+    this.vaultTasks = new VaultTasks(this.app.vault);
+  }
 
   async onload() {
     console.log("loading plugin");
@@ -60,6 +69,17 @@ export default class MyPlugin extends Plugin {
     this.registerInterval(
       window.setInterval(() => console.log("setInterval"), 5 * 60 * 1000)
     );
+
+    if (this.app.workspace.layoutReady) {
+      await this.prepareIndex();
+    } else {
+      this.registerEvent(
+        this.app.workspace.on(
+          "layout-ready",
+          async () => await this.prepareIndex()
+        )
+      );
+    }
   }
 
   onunload() {
@@ -72,6 +92,10 @@ export default class MyPlugin extends Plugin {
 
   async saveSettings() {
     await this.saveData(this.settings);
+  }
+
+  async prepareIndex() {
+    await this.vaultTasks.initialize();
   }
 }
 
@@ -106,9 +130,12 @@ class SampleSettingTab extends PluginSettingTab {
 
     containerEl.createEl("h2", { text: "Settings for my awesome plugin." });
 
+    const desc = Array.from(this.plugin.vaultTasks.getTasks().entries());
+    console.log(desc);
+
     new Setting(containerEl)
       .setName("Setting #1")
-      .setDesc("It's a secret")
+      .setDesc(JSON.stringify(desc))
       .addText((text) =>
         text
           .setPlaceholder("Enter your secret")
