@@ -1,14 +1,10 @@
 import { Vault } from "obsidian";
 
 const parseTasks = function (contents: string): string[] {
-  const todoRegex = /\s*-\s+\[ \]\s(.+)/g;
-
-  if (!todoRegex.test(contents)) {
-    return [];
-  }
+  const todoRegex = /-\s+\[ \]\s(.+)/g;
 
   const matches = contents.matchAll(todoRegex);
-  return Array.from(matches, (m: string) => m[0]);
+  return Array.from(matches, (m: string) => m[1]);
 };
 
 class VaultTasks {
@@ -28,6 +24,7 @@ class VaultTasks {
     for (const file of files) {
       const fileContents = await this.vault.cachedRead(file);
       const tasks = parseTasks(fileContents);
+      console.log(file.path, tasks);
       this.index.set(file.path, tasks);
     }
   }

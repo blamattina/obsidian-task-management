@@ -22,17 +22,19 @@ export class TaskListView extends ItemView {
 
   onOpen(): Promise<void> {
     const container = this.containerEl.children[1];
+    container.addClass("markdown-preview-view");
 
     const allTasks = this.vaultTasks.getTasks();
     console.log(allTasks);
 
     for (const [file, tasks] of allTasks) {
       if (tasks.length) {
-        console.log(file);
-
-        container.createDiv("foo", (el) => (el.innerHTML = `<h1>${file}</h1>`));
+        container.createDiv(
+          "task-management-file-name",
+          (el) => (el.innerHTML = `<h4>${file}</h4>`)
+        );
         for (const task of tasks) {
-          container.createDiv("foo", (el) => {
+          container.createDiv("task-management-todo", (el) => {
             MarkdownRenderer.renderMarkdown(task, el);
           });
         }
