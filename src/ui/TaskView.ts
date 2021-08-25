@@ -27,15 +27,15 @@ export class TaskListView extends ItemView {
     const allTasks = this.vaultTasks.getTasks();
     console.log(allTasks);
 
-    for (const [file, tasks] of allTasks) {
-      if (tasks.length) {
+    for (const [path, taskList] of allTasks) {
+      if (taskList.tasks.length) {
         container.createDiv(
           "task-management-file-name",
-          (el) => (el.innerHTML = `<h4>${file}</h4>`)
+          (el) => (el.innerHTML = `<h4>${taskList.basename}</h4>`)
         );
-        for (const task of tasks) {
+        for (const task of taskList.tasks) {
           container.createDiv("task-management-todo", (el) => {
-            MarkdownRenderer.renderMarkdown(task, el);
+            MarkdownRenderer.renderMarkdown(task.description, el);
           });
         }
       }
