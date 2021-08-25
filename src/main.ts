@@ -11,6 +11,7 @@ import {
 
 import { TaskListView } from "./ui/TaskView";
 import { VaultTasks } from "./vault-tasks";
+import { VIEW_TYPE } from "./constants";
 
 interface MyPluginSettings {
   mySetting: string;
@@ -59,7 +60,7 @@ export default class MyPlugin extends Plugin {
     });
 
     const { vaultTasks } = this;
-    this.registerView("com.foo.test", (leaf: WorkspaceLeaf) => {
+    this.registerView(VIEW_TYPE, (leaf: WorkspaceLeaf) => {
       const view = new TaskListView(leaf, this.vaultTasks);
       return view;
     });
@@ -103,10 +104,10 @@ export default class MyPlugin extends Plugin {
   }
 
   async initialize() {
-    await this.vaultTasks.initialize();
     this.app.workspace.getRightLeaf(false).setViewState({
-      type: "com.foo.test",
+      type: VIEW_TYPE,
     });
+    await this.vaultTasks.initialize();
   }
 }
 

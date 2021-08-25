@@ -1,5 +1,6 @@
 import { ItemView, WorkspaceLeaf, MarkdownRenderer } from "obsidian";
 import { VaultTasks } from "../vault-tasks";
+import { VIEW_TYPE } from "../constants";
 
 export class TaskListView extends ItemView {
   private vaultTasks: VaultTasks;
@@ -10,18 +11,19 @@ export class TaskListView extends ItemView {
   }
 
   getViewType(): string {
-    return "com.foo.test";
+    return VIEW_TYPE;
   }
   getDisplayText(): string {
-    return "foo";
+    return "Task List";
   }
 
   getIcon(): string {
     return "checkmark";
   }
 
-  onOpen(): Promise<void> {
+  render() {
     const container = this.containerEl.children[1];
+    container.empty();
     container.addClass("markdown-preview-view");
 
     const allTasks = this.vaultTasks.getTasks();
@@ -40,9 +42,11 @@ export class TaskListView extends ItemView {
         }
       }
     }
+  }
 
-    console.log(container);
-
-    return;
+  onOpen() {
+    this.vaultTasks.on("initialized", () => {
+      this.render();
+    });
   }
 }

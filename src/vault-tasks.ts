@@ -1,4 +1,4 @@
-import { Vault, TFile } from "obsidian";
+import { Vault, TFile, Events } from "obsidian";
 
 export type TaskList = {
   name: string;
@@ -20,8 +20,6 @@ const parseTasks = function (contents: string): Task[] {
 
   const matches = contents.matchAll(todoRegex);
   return Array.from(matches, (m: string) => {
-    console.log(m);
-
     return {
       description: m[1],
       completed: false,
@@ -43,18 +41,18 @@ const parseFile = async function (file: TFile): Promise<TaskList> {
   };
 };
 
-class VaultTasks {
+class VaultTasks extends Events {
   private index: Map<string, TaskList>;
   private vault: Vault;
   private markdownFiles: any;
 
   constructor(vault: Vault) {
+    super();
     this.vault = vault;
     this.index = new Map<string, TaskList>();
   }
 
   async initialize(): Promise<void> {
-    console.log(this.vault);
     const files = this.vault.getMarkdownFiles();
 
     for (const file of files) {
@@ -72,6 +70,8 @@ class VaultTasks {
       const tasks = parseTasks(fileContents);
       this.index.set(file.path, taskList);
     }
+
+    this.trigger("initialized");
   }
 
   getTasks() {
