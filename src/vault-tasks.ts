@@ -1,4 +1,4 @@
-import { Vault, TFile, Events } from "obsidian";
+import { Vault, TAbstractFile, TFile, Events } from "obsidian";
 
 export type TaskList = {
   name: string;
@@ -27,8 +27,11 @@ const parseTasks = function (contents: string): Task[] {
   });
 };
 
-const parseFile = async function (file: TFile): Promise<TaskList> {
-  const fileContents = await this.vault.cachedRead(file);
+const parseFile = async function (
+  vault: Vault,
+  file: TFile
+): Promise<TaskList> {
+  const fileContents = await vault.cachedRead(file);
 
   return {
     name: file.name,
@@ -52,30 +55,44 @@ class VaultTasks extends Events {
     this.index = new Map<string, TaskList>();
   }
 
+  private async indexFile(file: TAbstractFile) {
+    if (!(file instanceof TFile)) return;
+
+    const taskList = await parseFile(this.vault, file as TFile);
+    this.index.set(file.path, taskList);
+    this.trigger("update");
+  }
+
+  private deleteFile(file: TAbstractFile) {
+    if (!(file instanceof TFile)) return;
+
+    this.index.delete(file.path);
+    this.trigger("update");
+  }
+
   async initialize(): Promise<void> {
     const files = this.vault.getMarkdownFiles();
 
     for (const file of files) {
-      const fileContents = await this.vault.cachedRead(file);
-      const taskList = {
-        name: file.name,
-        basename: file.basename,
-        path: file.path,
-        tasks: parseTasks(fileContents),
-        createdAt: file.stat.ctime,
-        modifiedAt: file.stat.mtime,
-        file,
-      };
-
-      const tasks = parseTasks(fileContents);
+      const taskList = await parseFile(this.vault, file);
       this.index.set(file.path, taskList);
     }
+
+    this.vault.on("create", this.indexFile.bind(this));
+    this.vault.on("modify", this.indexFile.bind(this));
+    this.vault.on("delete", this.deleteFile.bind(this));
 
     this.trigger("initialized");
   }
 
   getTasks() {
-    return this.index;
+    const taskLists = Array.from(this.index.values()).sort(
+      (a: TaskList, b: TaskList): number => {
+        return b.modifiedAt - a.modifiedAt;
+      }
+    );
+
+    return taskLists;
   }
 }
 

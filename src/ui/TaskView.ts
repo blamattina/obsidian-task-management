@@ -27,9 +27,8 @@ export class TaskListView extends ItemView {
     container.addClass("markdown-preview-view");
 
     const allTasks = this.vaultTasks.getTasks();
-    console.log(allTasks);
 
-    for (const [path, taskList] of allTasks) {
+    for (const taskList of allTasks) {
       if (taskList.tasks.length) {
         container.createDiv(
           "task-management-file-name",
@@ -46,6 +45,10 @@ export class TaskListView extends ItemView {
 
   onOpen() {
     this.vaultTasks.on("initialized", () => {
+      this.render();
+    });
+
+    this.vaultTasks.on("update", () => {
       this.render();
     });
   }
