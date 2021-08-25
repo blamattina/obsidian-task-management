@@ -1,48 +1,7 @@
 import { Vault, TAbstractFile, TFile, Events } from "obsidian";
 
-export type TaskList = {
-  name: string;
-  basename: string;
-  path: string;
-  createdAt: number;
-  modifiedAt: number;
-  tasks: Task[];
-  file: TFile;
-};
-
-export type Task = {
-  description: string;
-  completed: boolean;
-};
-
-const parseTasks = function (contents: string): Task[] {
-  const todoRegex = /-\s+\[ \]\s(.+)/g;
-
-  const matches = contents.matchAll(todoRegex);
-  return Array.from(matches, (m: string) => {
-    return {
-      description: m[1],
-      completed: false,
-    };
-  });
-};
-
-const parseFile = async function (
-  vault: Vault,
-  file: TFile
-): Promise<TaskList> {
-  const fileContents = await vault.cachedRead(file);
-
-  return {
-    name: file.name,
-    basename: file.basename,
-    path: file.path,
-    tasks: parseTasks(fileContents),
-    createdAt: file.stat.ctime,
-    modifiedAt: file.stat.mtime,
-    file,
-  };
-};
+import { TaskList, Task } from "./types";
+import { parseFile } from "./parseFile";
 
 class VaultTasks extends Events {
   private index: Map<string, TaskList>;
@@ -96,4 +55,4 @@ class VaultTasks extends Events {
   }
 }
 
-export { VaultTasks };
+export { VaultTasks, TaskList, Task };
