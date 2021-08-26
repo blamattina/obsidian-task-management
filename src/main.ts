@@ -9,7 +9,7 @@ import {
   WorkspaceLeaf,
 } from "obsidian";
 
-import { TaskListView } from "./ui/TaskView";
+import { TaskLeafContainer } from "./ui/task-leaf-container";
 import { VaultTasks } from "./vault-tasks";
 import { VIEW_TYPE } from "./constants";
 
@@ -62,7 +62,7 @@ export default class MyPlugin extends Plugin {
     const { vaultTasks } = this;
 
     this.registerView(VIEW_TYPE, (leaf: WorkspaceLeaf) => {
-      const view = new TaskListView(leaf, this.vaultTasks);
+      const view = new TaskLeafContainer(leaf, this.vaultTasks);
       return view;
     });
 

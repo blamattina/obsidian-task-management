@@ -18,14 +18,16 @@ export const parseFile = async function (
   file: TFile
 ): Promise<TaskList> {
   const fileContents = await vault.cachedRead(file);
+  const tasks = parseTasks(fileContents);
 
   return {
     name: file.name,
     basename: file.basename,
     path: file.path,
-    tasks: parseTasks(fileContents),
     createdAt: file.stat.ctime,
     modifiedAt: file.stat.mtime,
+    completed: !!tasks.filter((task) => !task.completed).length,
+    tasks,
     file,
   };
 };

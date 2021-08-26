@@ -2,6 +2,7 @@ export type TaskList = {
   name: string;
   basename: string;
   path: string;
+  completed: boolean;
   createdAt: number;
   modifiedAt: number;
   tasks: Task[];
