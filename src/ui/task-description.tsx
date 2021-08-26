@@ -5,6 +5,7 @@ import { Task as TaskType } from "../vault-tasks";
 
 const StyledDescription = styled.div`
   p {
+    word-break: break-all;
     margin: 1px 2px;
   }
 `;
