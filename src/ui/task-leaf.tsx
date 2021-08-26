@@ -18,7 +18,13 @@ export const TaskLeaf = ({ vaultTasks }: any) => {
     () =>
       taskLists
         .filter((taskList) => taskList.completed)
-        .map((taskList) => <TaskList taskList={taskList} />),
+        .map((taskList) => (
+          <TaskList
+            key={taskList.path}
+            taskList={taskList}
+            vaultTasks={vaultTasks}
+          />
+        )),
     [taskLists]
   );
 

@@ -1,3 +1,5 @@
+import { TFile } from "obsidian";
+
 export type TaskList = {
   name: string;
   basename: string;
@@ -13,4 +15,5 @@ export type Task = {
   description: string;
   index: number;
   completed: boolean;
+  file: TFile;
 };

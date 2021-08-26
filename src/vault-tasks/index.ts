@@ -2,6 +2,7 @@ import { Vault, TAbstractFile, TFile, Events } from "obsidian";
 
 import { TaskList, Task } from "./types";
 import { parseFile } from "./parseFile";
+import { toggleTask } from "./toggleTask";
 
 class VaultTasks extends Events {
   private index: Map<string, TaskList>;
@@ -52,6 +53,10 @@ class VaultTasks extends Events {
     );
 
     return taskLists;
+  }
+
+  async toggleTaskStatus(task: Task) {
+    await toggleTask(this.vault, task);
   }
 }
 

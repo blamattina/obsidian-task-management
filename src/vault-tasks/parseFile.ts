@@ -1,6 +1,6 @@
 import { Vault, TFile } from "obsidian";
 
-export const parseTasks = function (contents: string): Task[] {
+export const parseTasks = function (contents: string, file: TFile): Task[] {
   const todoRegex = /-\s*\[( |x)\]\s(.+)/gi;
 
   const matches = contents.matchAll(todoRegex);
@@ -9,6 +9,7 @@ export const parseTasks = function (contents: string): Task[] {
       description: match[2],
       index: match.index,
       completed: match[1] !== " ",
+      file,
     };
   });
 };
@@ -18,7 +19,7 @@ export const parseFile = async function (
   file: TFile
 ): Promise<TaskList> {
   const fileContents = await vault.cachedRead(file);
-  const tasks = parseTasks(fileContents);
+  const tasks = parseTasks(fileContents, file);
 
   return {
     name: file.name,
