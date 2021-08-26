@@ -60,6 +60,7 @@ export default class MyPlugin extends Plugin {
     });
 
     const { vaultTasks } = this;
+
     this.registerView(VIEW_TYPE, (leaf: WorkspaceLeaf) => {
       const view = new TaskListView(leaf, this.vaultTasks);
       return view;

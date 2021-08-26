@@ -10,5 +10,6 @@ export type TaskList = {
 
 export type Task = {
   description: string;
+  index: number;
   completed: boolean;
 };

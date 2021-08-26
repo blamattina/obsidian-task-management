@@ -36,6 +36,14 @@ export class TaskListView extends ItemView {
         );
         for (const task of taskList.tasks) {
           container.createDiv("task-management-todo", (el) => {
+            el.createDiv("todo-item-view-item-checkbox", (el) => {
+              el.createEl("input", { type: "checkbox" }, (el) => {
+                el.checked = task.completed;
+                el.onClickEvent(() => {
+                  console.log("clicked on", task);
+                });
+              });
+            });
             MarkdownRenderer.renderMarkdown(task.description, el);
           });
         }

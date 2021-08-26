@@ -1,13 +1,14 @@
 import { Vault, TFile } from "obsidian";
 
 export const parseTasks = function (contents: string): Task[] {
-  const todoRegex = /-\s+\[ \]\s(.+)/g;
+  const todoRegex = /-\s*\[( |x)\]\s(.+)/gi;
 
   const matches = contents.matchAll(todoRegex);
-  return Array.from(matches, (m: string) => {
+  return Array.from(matches, (match: RegExpMatchArray) => {
     return {
-      description: m[1],
-      completed: false,
+      description: match[2],
+      index: match.index,
+      completed: match[1] !== " ",
     };
   });
 };
