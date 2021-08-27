@@ -7,13 +7,23 @@ export type TaskList = {
   completed: boolean;
   createdAt: number;
   modifiedAt: number;
-  tasks: Task[];
+  children: (Heading | Task)[];
   file: TFile;
+};
+
+export type Heading = {
+  description: string;
+  depth: number;
+};
+
+export type List = {
+  children: Task[];
 };
 
 export type Task = {
   description: string;
   index: number;
   completed: boolean;
+  children: Task[];
   file: TFile;
 };
