@@ -1,6 +1,6 @@
 import { Vault, TAbstractFile, TFile, Events } from "obsidian";
 
-import { TaskList, Task } from "./types";
+import { Project, Task } from "./types";
 
 function escapeRegExp(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string

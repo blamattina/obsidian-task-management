@@ -1,18 +1,18 @@
 import { Vault, TAbstractFile, TFile, Events } from "obsidian";
 
-import { TaskList, Task } from "./types";
+import { Task, Project, Heading, List, isHeading, isList } from "./types";
 import { parseFile } from "./parseFile";
 import { toggleTask } from "./toggleTask";
 
 class VaultTasks extends Events {
-  private index: Map<string, TaskList>;
+  private index: Map<string, Project>;
   private vault: Vault;
   private markdownFiles: any;
 
   constructor(vault: Vault) {
     super();
     this.vault = vault;
-    this.index = new Map<string, TaskList>();
+    this.index = new Map<string, Project>();
   }
 
   private async indexFile(file: TAbstractFile) {
@@ -45,14 +45,14 @@ class VaultTasks extends Events {
     this.trigger("initialized");
   }
 
-  getTasks() {
-    const taskLists = Array.from(this.index.values()).sort(
-      (a: TaskList, b: TaskList): number => {
+  getProjects() {
+    const projects = Array.from(this.index.values()).sort(
+      (a: Project, b: Project): number => {
         return b.modifiedAt - a.modifiedAt;
       }
     );
 
-    return taskLists;
+    return projects;
   }
 
   async toggleTaskStatus(task: Task) {
@@ -60,4 +60,4 @@ class VaultTasks extends Events {
   }
 }
 
-export { VaultTasks, TaskList, Task };
+export { VaultTasks, Task, Project, Heading, List, isHeading, isList };

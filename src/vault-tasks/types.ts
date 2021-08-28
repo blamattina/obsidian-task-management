@@ -1,6 +1,6 @@
 import { TFile } from "obsidian";
 
-export type TaskList = {
+export type Project = {
   name: string;
   basename: string;
   path: string;
@@ -12,7 +12,7 @@ export type TaskList = {
 };
 
 export type Heading = {
-  description: string;
+  name: string;
   depth: number;
 };
 
@@ -27,3 +27,11 @@ export type Task = {
   children: Task[];
   file: TFile;
 };
+
+export function isHeading(obj: any): obj is Heading {
+  return obj && typeof obj.name === "string" && typeof obj.depth === "number";
+}
+
+export function isList(obj: any): obj is List {
+  return obj && Array.isArray(obj.children) && Object.keys(obj) === 1;
+}

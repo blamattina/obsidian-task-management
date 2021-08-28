@@ -1,4 +1,5 @@
 import { Vault, TFile } from "obsidian";
+import { Project, Heading, List, Task, isHeading } from "./types";
 import { fromMarkdown, toMarkdown } from "./tokenizer";
 
 const convertNodesToMarkdown = (...nodes: any) => {
@@ -8,21 +9,16 @@ const convertNodesToMarkdown = (...nodes: any) => {
   });
 };
 
-export const parseTasks = function (contents: string, file: TFile): Task[] {
-  const todoRegex = /-\s*\[( |x)\]\s(.+)/gi;
+const identity = (arg: any) => arg;
 
-  const matches = contents.matchAll(todoRegex);
-  return Array.from(matches, (match: RegExpMatchArray) => {
-    return {
-      description: match[2],
-      index: match.index,
-      completed: match[1] !== " ",
-      file,
-    };
-  });
+const hasIncompleteTasks = (child: Heading | Task) => {
+  if ("completed" in child) return !child.completed;
+  if ("children" in child) {
+    return child.children.some(hasIncompleteTasks);
+  }
 };
 
-const parse = (child) => {
+const parse = (child): Heading | Task => {
   switch (child.type) {
     case "heading": {
       return {
@@ -32,12 +28,10 @@ const parse = (child) => {
     }
 
     case "list": {
-      const children = child.children.map(parse).filter((c) => !!c);
+      const children = child.children.map(parse).filter(identity);
 
       if (children.length) {
-        return {
-          children,
-        };
+        return children;
       }
     }
 
@@ -47,7 +41,7 @@ const parse = (child) => {
         return {
           description: convertNodesToMarkdown(paragraph),
           completed: child.checked,
-          children: others.map(parse).filter((c) => !!c),
+          children: others.map(parse).filter(identity).flat(),
         };
       }
     }
@@ -57,23 +51,30 @@ const parse = (child) => {
 export const parseFile = async function (
   vault: Vault,
   file: TFile
-): Promise<TaskList> {
+): Promise<Project> {
   const fileContents = await vault.cachedRead(file);
-  const tasks = parseTasks(fileContents, file);
 
   const tree = fromMarkdown(fileContents);
-  const children = tree.children.map(parse).filter((c) => !!c);
+  const children = tree.children
+    .map(parse)
+    .filter(identity)
+    .filter((item, index, array) => {
+      if (isHeading(item) && index === array.length - 1) return false;
+      if (isHeading(item) && isHeading(array[index + 1])) return false;
+      return true;
+    })
+    .flat();
 
-  console.log(file.basename, tree, children);
-
+  const completed = children.some(hasIncompleteTasks);
+  console.log(file.basename, completed);
   return {
     name: file.name,
     basename: file.basename,
     path: file.path,
     createdAt: file.stat.ctime,
     modifiedAt: file.stat.mtime,
-    completed: !!tasks.filter((task) => !task.completed).length,
-    tasks,
+    completed: children.some(hasIncompleteTasks),
+    children,
     file,
   };
 };
