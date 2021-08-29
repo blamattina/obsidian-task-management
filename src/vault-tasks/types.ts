@@ -2,6 +2,17 @@ import { TFile } from "obsidian";
 
 export type ProjectItem = Heading | Task;
 
+export type PositionLocator = {
+  line: number;
+  column: number;
+  offset: number;
+};
+
+export type Position = {
+  start: PositionLocator;
+  end: PositionLocator;
+};
+
 export type Project = {
   name: string;
   basename: string;
@@ -16,12 +27,14 @@ export type Project = {
 export type Heading = {
   name: string;
   depth: number;
+  position: Position;
 };
 
 export type Task = {
   description: string;
   completed: boolean;
   children: ProjectItem[];
+  position: Position;
 };
 
 export function isHeading(obj: any): obj is Heading {
