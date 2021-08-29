@@ -143,12 +143,9 @@ class SampleSettingTab extends PluginSettingTab {
 
     containerEl.createEl("h2", { text: "Settings for my awesome plugin." });
 
-    const desc = Array.from(this.plugin.vaultTasks.getTasks().entries());
-    console.log(desc);
-
     new Setting(containerEl)
       .setName("Setting #1")
-      .setDesc(JSON.stringify(desc))
+      .setDesc("Desc")
       .addText((text) =>
         text
           .setPlaceholder("Enter your secret")

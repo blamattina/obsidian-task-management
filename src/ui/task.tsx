@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import styled from "styled-components";
-import { Task as TaskType } from "../vault-tasks";
+import { Task as TaskType, VaultTasks } from "../vault-tasks";
 import { RenderedMarkdown } from "./rendered-markdown";
 
 const StyledTask = styled.div`
@@ -16,11 +16,11 @@ const Indent = styled.div`
 export const Task = ({
   task,
   children,
-  onCheckboxClick,
+  vaultTasks,
 }: {
   task: TaskType;
   children: any;
-  onCheckboxClick: Function;
+  vaultTasks: VaultTasks;
 }) => {
   return (
     <>

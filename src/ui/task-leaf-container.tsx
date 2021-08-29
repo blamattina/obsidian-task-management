@@ -25,7 +25,7 @@ export class TaskLeafContainer extends ItemView {
     return "checkmark";
   }
 
-  onOpen() {
+  async onOpen(): Promise<void> {
     const container = this.containerEl.children[1];
 
     ReactDOM.render(<TaskLeaf vaultTasks={this.vaultTasks} />, container);

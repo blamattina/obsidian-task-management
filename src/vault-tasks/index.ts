@@ -1,6 +1,6 @@
 import { Vault, TAbstractFile, TFile, Events } from "obsidian";
 
-import { Task, Project, Heading, List, isHeading, isList } from "./types";
+import { Task, Project, ProjectItem, isHeading } from "./types";
 import { parseFile } from "./parseFile";
 import { toggleTask } from "./toggleTask";
 
@@ -45,7 +45,7 @@ class VaultTasks extends Events {
     this.trigger("initialized");
   }
 
-  getProjects() {
+  getProjects(): Project[] {
     const projects = Array.from(this.index.values()).sort(
       (a: Project, b: Project): number => {
         return b.modifiedAt - a.modifiedAt;
@@ -60,4 +60,4 @@ class VaultTasks extends Events {
   }
 }
 
-export { VaultTasks, Task, Project, Heading, List, isHeading, isList };
+export { VaultTasks, Task, Project, ProjectItem, isHeading };

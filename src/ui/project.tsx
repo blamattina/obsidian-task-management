@@ -5,6 +5,7 @@ import { ProjectItem } from "./project-item";
 import { RenderedMarkdown } from "./rendered-markdown";
 
 const Heading = styled.h4`
+  color: var(--text-normal);
   margin: 6px 0;
 `;
 
@@ -25,7 +26,7 @@ export const Project = ({
 
   return (
     <div>
-      <h3>{project.basename}</h3>
+      <Heading>{project.basename}</Heading>
       {renderChildren()}
     </div>
   );

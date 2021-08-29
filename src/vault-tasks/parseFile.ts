@@ -1,8 +1,8 @@
 import { Vault, TFile } from "obsidian";
-import { Project, Heading, List, Task, isHeading } from "./types";
+import { Project, ProjectItem, isHeading } from "./types";
 import { fromMarkdown, toMarkdown } from "./tokenizer";
 
-const convertNodesToMarkdown = (...nodes: any) => {
+const convertNodesToMarkdown = (...nodes: any): string => {
   return toMarkdown({
     type: "root",
     children: nodes,
@@ -11,14 +11,16 @@ const convertNodesToMarkdown = (...nodes: any) => {
 
 const identity = (arg: any) => arg;
 
-const hasIncompleteTasks = (child: Heading | Task) => {
+const hasIncompleteTasks = (child: ProjectItem): boolean => {
   if ("completed" in child) return !child.completed;
   if ("children" in child) {
     return child.children.some(hasIncompleteTasks);
   }
+
+  return false;
 };
 
-const parse = (child): Heading | Task => {
+const parse = (child: any): ProjectItem => {
   switch (child.type) {
     case "heading": {
       return {
@@ -40,7 +42,7 @@ const parse = (child): Heading | Task => {
         const [paragraph, ...others] = child.children;
         return {
           description: convertNodesToMarkdown(paragraph),
-          completed: child.checked,
+          completed: child.checked as boolean,
           children: others.map(parse).filter(identity).flat(),
         };
       }
@@ -66,7 +68,6 @@ export const parseFile = async function (
     .flat();
 
   const completed = children.some(hasIncompleteTasks);
-  console.log(file.basename, completed);
   return {
     name: file.name,
     basename: file.basename,

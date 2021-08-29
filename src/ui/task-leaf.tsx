@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Project } from "./project";
+import { Project as ProjectType } from "../vault-tasks/types";
 
 export const TaskLeaf = ({ vaultTasks }: any) => {
   const [projects, setProjects] = useState(vaultTasks.getProjects());
@@ -17,8 +18,8 @@ export const TaskLeaf = ({ vaultTasks }: any) => {
   const renderProjects = useCallback(
     () =>
       projects
-        .filter((project) => project.completed)
-        .map((project) => {
+        .filter((project: ProjectType) => project.completed)
+        .map((project: ProjectType) => {
           return (
             <Project
               key={project.path}

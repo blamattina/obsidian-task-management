@@ -14,7 +14,7 @@ export const RenderedMarkdown = ({ markdown }: { markdown: string }) => {
   const div = useRef(null);
 
   useEffect(() => {
-    const cleaned = markdown; //markdown.replaceAll("\\[", "[");
+    const cleaned = markdown.replaceAll("\\[", "[");
 
     MarkdownRenderer.renderMarkdown(cleaned, div.current);
   }, [markdown, div]);
