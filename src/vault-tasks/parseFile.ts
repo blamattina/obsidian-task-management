@@ -9,8 +9,7 @@ const convertNodesToMarkdown = (...nodes: any): string => {
   });
 
   // Replace escaped `\[\[` in bidirectional links
-  return markdown.replaceAll("\\[", "[");
-  return markdown.replaceAll("\\#", "#");
+  return markdown.replaceAll("\\[", "[").replaceAll("\\#", "#");
 };
 
 const identity = (arg: any) => arg;
