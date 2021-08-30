@@ -27,7 +27,7 @@ const parse = (item: any, file: TFile): ProjectItem => {
   switch (item.type) {
     case "heading": {
       return {
-        name: convertNodesToMarkdown(...item.children),
+        name: convertNodesToMarkdown(...item.children).trim(),
         depth: item.depth,
         position: item.position as Position,
         file,
@@ -48,7 +48,7 @@ const parse = (item: any, file: TFile): ProjectItem => {
       if (typeof item.checked === "boolean") {
         const [paragraph, ...others] = item.children;
         return {
-          description: convertNodesToMarkdown(paragraph),
+          description: convertNodesToMarkdown(paragraph).trim(),
           completed: item.checked as boolean,
           children: others.map(parse).filter(identity).flat(),
           position: item.position as Position,
