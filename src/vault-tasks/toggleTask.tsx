@@ -1,21 +1,15 @@
 import { Vault, TAbstractFile, TFile, Events } from "obsidian";
 
 import { Project, Task } from "./types";
-
-function escapeRegExp(string: string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
-}
+import { fromMarkdown, toMarkdown } from "./tokenizer";
 
 export const toggleTask = async function (vault: Vault, task: Task) {
-  const todoRegex = new RegExp(
-    "-\\s*\\[( |x)\\]\\s" + escapeRegExp(task.description),
-    "gi"
-  );
-  // const fileContents = await vault.cachedRead(task.file);
-  // const newContents = fileContents.replace(todoRegex, (substring, ...args) => {
-  //   console.log(substring, task);
-  //   return `- [${task.completed ? " " : "x"}] ${task.description}`;
-  // });
+  const { file, position } = task;
+  const fileContents = await vault.cachedRead(file);
 
-  // await vault.modify(task.file, newContents);
+  const start = fileContents.slice(0, position.start.offset);
+  const taskString = `- [${task.completed ? " " : "x"}] ${task.description}`;
+  const end = fileContents.slice(position.end.offset);
+
+  await vault.modify(file, start.concat(taskString, end));
 };

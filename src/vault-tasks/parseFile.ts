@@ -3,10 +3,13 @@ import { Project, ProjectItem, Position, isHeading } from "./types";
 import { fromMarkdown, toMarkdown } from "./tokenizer";
 
 const convertNodesToMarkdown = (...nodes: any): string => {
-  return toMarkdown({
+  const markdown = toMarkdown({
     type: "root",
     children: nodes,
   });
+
+  // Replace escaped `\[\[` in bidirectional links
+  return markdown.replaceAll("\\[\\[", "[[");
 };
 
 const identity = (arg: any) => arg;
@@ -20,18 +23,21 @@ const hasIncompleteTasks = (child: ProjectItem): boolean => {
   return false;
 };
 
-const parse = (child: any): ProjectItem => {
-  switch (child.type) {
+const parse = (item: any, file: TFile): ProjectItem => {
+  switch (item.type) {
     case "heading": {
       return {
-        name: convertNodesToMarkdown(...child.children),
-        depth: child.depth,
-        position: child.position as Position,
+        name: convertNodesToMarkdown(...item.children),
+        depth: item.depth,
+        position: item.position as Position,
+        file,
       };
     }
 
     case "list": {
-      const children = child.children.map(parse).filter(identity);
+      const children = item.children
+        .map((child: any) => parse(child, file))
+        .filter(identity);
 
       if (children.length) {
         return children;
@@ -39,13 +45,14 @@ const parse = (child: any): ProjectItem => {
     }
 
     case "listItem": {
-      if (typeof child.checked === "boolean") {
-        const [paragraph, ...others] = child.children;
+      if (typeof item.checked === "boolean") {
+        const [paragraph, ...others] = item.children;
         return {
           description: convertNodesToMarkdown(paragraph),
-          completed: child.checked as boolean,
+          completed: item.checked as boolean,
           children: others.map(parse).filter(identity).flat(),
-          position: child.position as Position,
+          position: item.position as Position,
+          file,
         };
       }
     }
@@ -58,16 +65,16 @@ export const parseFile = async function (
 ): Promise<Project> {
   const fileContents = await vault.cachedRead(file);
 
-  const tree = fromMarkdown(fileContents);
-  const children = tree.children
-    .map(parse)
+  const ast = fromMarkdown(fileContents);
+  const children = ast.children
+    .map((child) => parse(child, file))
+    .flat()
     .filter(identity)
     .filter((item, index, array) => {
       if (isHeading(item) && index === array.length - 1) return false;
       if (isHeading(item) && isHeading(array[index + 1])) return false;
       return true;
-    })
-    .flat();
+    });
 
   const completed = children.some(hasIncompleteTasks);
   return {

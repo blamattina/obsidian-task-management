@@ -28,6 +28,7 @@ export type Heading = {
   name: string;
   depth: number;
   position: Position;
+  file: TFile;
 };
 
 export type Task = {
@@ -35,6 +36,7 @@ export type Task = {
   completed: boolean;
   children: ProjectItem[];
   position: Position;
+  file: TFile;
 };
 
 export function isHeading(obj: any): obj is Heading {

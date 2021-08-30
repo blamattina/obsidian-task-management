@@ -1,5 +1,4 @@
 import { Vault, TAbstractFile, TFile, Events } from "obsidian";
-
 import { Task, Project, ProjectItem, isHeading } from "./types";
 import { parseFile } from "./parseFile";
 import { toggleTask } from "./toggleTask";

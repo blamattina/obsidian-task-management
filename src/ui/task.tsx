@@ -33,7 +33,7 @@ export const Task = ({
             type="checkbox"
             checked={task.completed}
             className="task-list-item-checkbox"
-            readOnly
+            onChange={() => vaultTasks.toggleTaskStatus(task)}
           />
         </div>
         <RenderedMarkdown markdown={task.description} />

@@ -14,9 +14,7 @@ export const RenderedMarkdown = ({ markdown }: { markdown: string }) => {
   const div = useRef(null);
 
   useEffect(() => {
-    const cleaned = markdown.replaceAll("\\[", "[");
-
-    MarkdownRenderer.renderMarkdown(cleaned, div.current);
+    MarkdownRenderer.renderMarkdown(markdown, div.current);
   }, [markdown, div]);
 
   return <StyledDiv ref={div} />;
