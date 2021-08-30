@@ -11,6 +11,7 @@ export class TaskLeafContainer extends ItemView {
 
   constructor(leaf: WorkspaceLeaf, vaultTasks: VaultTasks) {
     super(leaf);
+    console.log("wtf", this.app);
     this.vaultTasks = vaultTasks;
   }
 
@@ -28,6 +29,20 @@ export class TaskLeafContainer extends ItemView {
   async onOpen(): Promise<void> {
     const container = this.containerEl.children[1];
 
-    ReactDOM.render(<TaskLeaf vaultTasks={this.vaultTasks} />, container);
+    ReactDOM.render(
+      <TaskLeaf
+        vaultTasks={this.vaultTasks}
+        openFile={this.openFile.bind(this)}
+      />,
+      container
+    );
   }
+
+  private async openFile(file: any) {
+    console.log(file);
+    const leaf = this.app.workspace.getUnpinnedLeaf();
+    await leaf.openFile(file);
+  }
+
+  toggleTask(file: any) {}
 }

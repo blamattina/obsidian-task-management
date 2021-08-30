@@ -7,10 +7,11 @@ const StyledTask = styled.div`
   display: flex;
   align-items: baseline;
   padding: 0;
+  margin-left: 10px;
 `;
 
 const Indent = styled.div`
-  padding-left: 25px;
+  margin-left: 25px;
 `;
 
 export const Task = ({

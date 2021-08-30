@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Project } from "./project";
 import { Project as ProjectType } from "../vault-tasks/types";
 
-export const TaskLeaf = ({ vaultTasks }: any) => {
+export const TaskLeaf = ({ vaultTasks, openFile }: any) => {
   const [projects, setProjects] = useState(vaultTasks.getProjects());
 
   useEffect(() => {
@@ -25,6 +25,7 @@ export const TaskLeaf = ({ vaultTasks }: any) => {
               key={project.path}
               project={project}
               vaultTasks={vaultTasks}
+              openFile={openFile}
             />
           );
         }),

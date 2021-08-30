@@ -8,9 +8,18 @@ import {
 import { Task } from "./Task";
 import { RenderedMarkdown } from "./rendered-markdown";
 
-const Heading = styled.h5`
-  color: var(--text-muted);
+const Heading = styled.div`
+  font-size: 12px;
   margin: 6px 0;
+  color: var(--text-normal) !important;
+
+  .internal-link {
+    color: var(--text-normal) !important;
+
+    &:hover {
+      text-decoration: underline !important;
+    }
+  }
 `;
 
 export const ProjectItem = ({
