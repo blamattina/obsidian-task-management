@@ -40,7 +40,9 @@ const parse = (item: any, file: TFile): ProjectItem => {
         .filter(identity);
 
       if (children.length) {
-        return children;
+        return {
+          children,
+        };
       }
     }
 
@@ -58,6 +60,8 @@ const parse = (item: any, file: TFile): ProjectItem => {
     }
   }
 };
+
+const reducer = (acc: any, item: any, tree: any) => {};
 
 export const parseFile = async function (
   vault: Vault,

@@ -1,5 +1,5 @@
 import { Vault, TAbstractFile, TFile, Events } from "obsidian";
-import { Task, Project, ProjectItem, isHeading } from "./types";
+import { Task, Project, ProjectItem, isHeading, isTask } from "./types";
 import { parseFile } from "./parseFile";
 import { toggleTask } from "./toggleTask";
 
@@ -59,4 +59,4 @@ class VaultTasks extends Events {
   }
 }
 
-export { VaultTasks, Task, Project, ProjectItem, isHeading };
+export { VaultTasks, Task, Project, ProjectItem, isHeading, isTask };
