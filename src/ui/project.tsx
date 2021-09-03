@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import styled from "styled-components";
-import { Project as ProjectType, VaultTasks, isHeading } from "../vault-tasks";
+import { Project as ProjectType, TaskVault, isHeading } from "../task-vault";
 import { ProjectItem } from "./project-item";
 import { RenderedMarkdown } from "./rendered-markdown";
 
@@ -21,7 +21,7 @@ export const Project = ({
   openFile,
 }: {
   project: ProjectType;
-  vaultTasks: VaultTasks;
+  vaultTasks: TaskVault;
   openFile: Funtion;
 }) => {
   const renderChildren = useCallback(

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Project } from "./project";
-import { Project as ProjectType } from "../vault-tasks/types";
+import { Project as ProjectType } from "../task-vault/types";
 
 export const TaskLeaf = ({ vaultTasks, openFile }: any) => {
   const [projects, setProjects] = useState(vaultTasks.getProjects());

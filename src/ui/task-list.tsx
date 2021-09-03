@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { TaskList as TaskListType, VaultTasks } from "../vault-tasks";
+import { TaskList as TaskListType, TaskVault } from "../task-vault";
 import { Task } from "./task";
 
 export const TaskList = ({
@@ -7,7 +7,7 @@ export const TaskList = ({
   vaultTasks,
 }: {
   taskList: TaskListType;
-  vaultTasks: VaultTasks;
+  vaultTasks: TaskVault;
 }) => {
   const renderTasks = useCallback(
     () =>

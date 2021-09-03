@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from "react";
 import styled from "styled-components";
 import { MarkdownRenderer } from "obsidian";
-import { Task as TaskType } from "../vault-tasks";
+import { Task as TaskType } from "../task-vault";
 
 const StyledDiv = styled.div`
   p {

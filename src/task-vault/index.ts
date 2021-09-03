@@ -3,7 +3,7 @@ import { Task, Project, ProjectItem, isHeading, isTask } from "./types";
 import { parseFile } from "./parseFile";
 import { toggleTask } from "./toggleTask";
 
-class VaultTasks extends Events {
+class TaskVault extends Events {
   private index: Map<string, Project>;
   private vault: Vault;
   private markdownFiles: any;
@@ -59,4 +59,4 @@ class VaultTasks extends Events {
   }
 }
 
-export { VaultTasks, Task, Project, ProjectItem, isHeading, isTask };
+export { TaskVault, Task, Project, ProjectItem, isHeading, isTask };

@@ -2,14 +2,14 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { ItemView, WorkspaceLeaf, MarkdownRenderer } from "obsidian";
 
-import { VaultTasks } from "../vault-tasks";
+import { TaskVault } from "../task-vault";
 import { VIEW_TYPE } from "../constants";
 import { TaskLeaf } from "./task-leaf";
 
 export class TaskLeafContainer extends ItemView {
-  private vaultTasks: VaultTasks;
+  private vaultTasks: TaskVault;
 
-  constructor(leaf: WorkspaceLeaf, vaultTasks: VaultTasks) {
+  constructor(leaf: WorkspaceLeaf, vaultTasks: TaskVault) {
     super(leaf);
     console.log("wtf", this.app);
     this.vaultTasks = vaultTasks;

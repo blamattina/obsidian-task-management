@@ -10,7 +10,7 @@ import {
 } from "obsidian";
 
 import { TaskLeafContainer } from "./ui/task-leaf-container";
-import { VaultTasks } from "./vault-tasks";
+import { TaskVault } from "./task-vault";
 import { VIEW_TYPE } from "./constants";
 
 interface MyPluginSettings {
@@ -23,11 +23,11 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
 
 export default class MyPlugin extends Plugin {
   settings: MyPluginSettings;
-  vaultTasks: VaultTasks;
+  vaultTasks: TaskVault;
 
   constructor(app: App, mainfest: PluginManifest) {
     super(app, mainfest);
-    this.vaultTasks = new VaultTasks(this.app.vault);
+    this.vaultTasks = new TaskVault(this.app.vault);
   }
 
   async onload() {

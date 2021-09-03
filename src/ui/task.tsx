@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import styled from "styled-components";
-import { Task as TaskType, VaultTasks } from "../vault-tasks";
+import { Task as TaskType, TaskVault } from "../task-vault";
 import { RenderedMarkdown } from "./rendered-markdown";
 
 const StyledTask = styled.div`
@@ -21,7 +21,7 @@ export const Task = ({
 }: {
   task: TaskType;
   children: any;
-  vaultTasks: VaultTasks;
+  vaultTasks: TaskVault;
 }) => {
   return (
     <>

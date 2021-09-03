@@ -2,10 +2,10 @@ import React, { useCallback } from "react";
 import styled from "styled-components";
 import {
   ProjectItem as ProjectItemType,
-  VaultTasks,
+  TaskVault,
   isHeading,
   isTask,
-} from "../vault-tasks";
+} from "../task-vault";
 import { Task } from "./Task";
 import { RenderedMarkdown } from "./rendered-markdown";
 
@@ -28,7 +28,7 @@ export const ProjectItem = ({
   vaultTasks,
 }: {
   item: ProjectItemType;
-  vaultTasks: VaultTasks;
+  vaultTasks: TaskVault;
 }) => {
   const renderChild = useCallback(() => {
     if (isHeading(item)) {
