@@ -3,15 +3,17 @@ import { Project } from "./project";
 import { Project as ProjectType } from "../task-vault/types";
 
 export const TaskLeaf = ({ vaultTasks, openFile }: any) => {
-  const [projects, setProjects] = useState(vaultTasks.getProjects());
+  const [projects, setProjects] = useState([]);
 
   useEffect(() => {
-    vaultTasks.on("initialized", () => {
-      setProjects(vaultTasks.getProjects());
+    vaultTasks.on("initialized", async () => {
+      const projects = await vaultTasks.getProjects();
+      setProjects(projects);
     });
 
-    vaultTasks.on("update", () => {
-      setProjects(vaultTasks.getProjects());
+    vaultTasks.on("update", async () => {
+      const projects = await vaultTasks.getProjects();
+      setProjects(projects);
     });
   }, [vaultTasks]);
 

@@ -1,40 +1,57 @@
 import { Vault, TAbstractFile, TFile, Events } from "obsidian";
 import { Task, Project, ProjectItem, isHeading, isTask } from "./types";
+import { TaskDb } from "./db";
 import { parseFile } from "./parseFile";
 import { toggleTask } from "./toggleTask";
 
 class TaskVault extends Events {
-  private index: Map<string, Project>;
   private vault: Vault;
   private markdownFiles: any;
+  private db: TaskDb;
 
   constructor(vault: Vault) {
     super();
     this.vault = vault;
-    this.index = new Map<string, Project>();
   }
 
-  private async indexFile(file: TAbstractFile) {
+  private async indexFile(file: TAbstractFile): Promise<void> {
     if (!(file instanceof TFile)) return;
 
-    const taskList = await parseFile(this.vault, file as TFile);
-    this.index.set(file.path, taskList);
+    console.log(`Deleting ${file.path} from the task db`);
+    await this.db.deleteProject(file.path);
+    console.log(`Parsing ${file.path}`);
+    const project = await parseFile(this.vault, file as TFile);
+    console.log(`Saving ${file.path} to the task db`);
+    await this.db.addProject(project);
+    console.log(`Triggering update`);
     this.trigger("update");
   }
 
-  private deleteFile(file: TAbstractFile) {
+  private async deleteFile(file: TAbstractFile): Promise<void> {
     if (!(file instanceof TFile)) return;
 
-    this.index.delete(file.path);
+    await this.db.deleteProject(file.path);
     this.trigger("update");
   }
 
   async initialize(): Promise<void> {
     const files = this.vault.getMarkdownFiles();
 
+    this.db = new TaskDb();
+    await this.db.initialize();
+
     for (const file of files) {
-      const taskList = await parseFile(this.vault, file);
-      this.index.set(file.path, taskList);
+      const existingProject = await this.db.getProject(file.path);
+
+      if (existingProject && existingProject.modifiedAt === file.stat.mtime) {
+        console.log(`Skipping ${file.path}`);
+      } else {
+        await this.db.deleteProject(file.path);
+
+        const project = await parseFile(this.vault, file);
+        await this.db.deleteProject(file.path);
+        await this.db.addProject(project);
+      }
     }
 
     this.vault.on("create", this.indexFile.bind(this));
@@ -44,17 +61,11 @@ class TaskVault extends Events {
     this.trigger("initialized");
   }
 
-  getProjects(): Project[] {
-    const projects = Array.from(this.index.values()).sort(
-      (a: Project, b: Project): number => {
-        return b.modifiedAt - a.modifiedAt;
-      }
-    );
-
-    return projects;
+  async getProjects(): Promise<Project[]> {
+    return await this.db.getProjects();
   }
 
-  async toggleTaskStatus(task: Task) {
+  async toggleTaskStatus(task: Task): Promise<void> {
     await toggleTask(this.vault, task);
   }
 }

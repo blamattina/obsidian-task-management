@@ -24,17 +24,19 @@ export const Project = ({
   vaultTasks: TaskVault;
   openFile: Funtion;
 }) => {
-  const renderChildren = useCallback(
-    () =>
-      project.children.map((child) => (
-        <ProjectItem item={child} vaultTasks={vaultTasks} />
-      )),
-    [project]
-  );
+  const renderChildren = useCallback(() => {
+    return project.children.map((child) => (
+      <ProjectItem
+        key={`project-item-for-${child.type}-${child.id}`}
+        item={child}
+        vaultTasks={vaultTasks}
+      />
+    ));
+  }, [project]);
 
   return (
     <Container>
-      <Heading onClick={() => openFile(project.file)}>
+      <Heading onClick={() => openFile(project.path)}>
         {project.basename}
       </Heading>
       <div style={{ marginLeft: 10 }}>{renderChildren()}</div>

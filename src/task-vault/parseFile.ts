@@ -30,7 +30,7 @@ const parse = (item: any, file: TFile): ProjectItem => {
         name: convertNodesToMarkdown(...item.children).trim(),
         depth: item.depth,
         position: item.position as Position,
-        file,
+        filePath: file.path,
       };
     }
 
@@ -42,6 +42,7 @@ const parse = (item: any, file: TFile): ProjectItem => {
       if (children.length) {
         return {
           children,
+          filePath: file.path,
         };
       }
     }
@@ -54,7 +55,7 @@ const parse = (item: any, file: TFile): ProjectItem => {
           completed: item.checked as boolean,
           children: others.map(parse).filter(identity).flat(),
           position: item.position as Position,
-          file,
+          filePath: file.path,
         };
       }
     }
@@ -89,6 +90,5 @@ export const parseFile = async function (
     modifiedAt: file.stat.mtime,
     completed: children.some(hasIncompleteTasks),
     children,
-    file,
   };
 };

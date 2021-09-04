@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { ItemView, WorkspaceLeaf, MarkdownRenderer } from "obsidian";
+import { ItemView, WorkspaceLeaf, MarkdownRenderer, TFile } from "obsidian";
 
 import { TaskVault } from "../task-vault";
 import { VIEW_TYPE } from "../constants";
@@ -38,10 +38,10 @@ export class TaskLeafContainer extends ItemView {
     );
   }
 
-  private async openFile(file: any) {
-    console.log(file);
+  private async openFile(path: string) {
     const leaf = this.app.workspace.getUnpinnedLeaf();
-    await leaf.openFile(file);
+    const file = await this.app.vault.getAbstractFileByPath(path);
+    await leaf.openFile(file as TFile);
   }
 
   toggleTask(file: any) {}

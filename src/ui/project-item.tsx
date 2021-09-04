@@ -33,7 +33,7 @@ export const ProjectItem = ({
   const renderChild = useCallback(() => {
     if (isHeading(item)) {
       return (
-        <Heading key={item.name}>
+        <Heading key={`${item.type}-${item.id}`}>
           <RenderedMarkdown markdown={item.name} />
         </Heading>
       );
@@ -41,9 +41,17 @@ export const ProjectItem = ({
 
     if (isTask(item)) {
       return (
-        <Task key={item.description} task={item} vaultTasks={vaultTasks}>
+        <Task
+          key={`${item.type}-${item.id}`}
+          task={item}
+          vaultTasks={vaultTasks}
+        >
           {item.children.map((child: ProjectItemType) => (
-            <ProjectItem item={child} vaultTasks={vaultTasks} />
+            <ProjectItem
+              key={`project-item-for-${child.type}-${child.id}`}
+              item={child}
+              vaultTasks={vaultTasks}
+            />
           ))}
         </Task>
       );
@@ -52,7 +60,11 @@ export const ProjectItem = ({
     return (
       <>
         {item.children.map((child: ProjectItemType) => (
-          <ProjectItem item={child} vaultTasks={vaultTasks} />
+          <ProjectItem
+            key={`project-item-for-${child.type}-${child.id}`}
+            item={child}
+            vaultTasks={vaultTasks}
+          />
         ))}
       </>
     );

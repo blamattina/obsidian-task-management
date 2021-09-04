@@ -21,18 +21,18 @@ export type Project = {
   createdAt: number;
   modifiedAt: number;
   children: ProjectItem[];
-  file: TFile;
 };
 
 export type Heading = {
   name: string;
   depth: number;
   position: Position;
-  file: TFile;
+  filePath: string;
 };
 
 export type List = {
   children: ProjectItem[];
+  filePath: string;
 };
 
 export type Task = {
@@ -40,7 +40,7 @@ export type Task = {
   completed: boolean;
   children: ProjectItem[];
   position: Position;
-  file: TFile;
+  filePath: string;
 };
 
 export function isHeading(obj: any): obj is Heading {
