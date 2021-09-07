@@ -11,7 +11,6 @@ export class TaskLeafContainer extends ItemView {
 
   constructor(leaf: WorkspaceLeaf, vaultTasks: TaskVault) {
     super(leaf);
-    console.log("wtf", this.app);
     this.vaultTasks = vaultTasks;
   }
 
