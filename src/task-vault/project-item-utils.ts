@@ -2,7 +2,7 @@ import { ProjectItem, isHeading, isTask } from "./types";
 import { request } from "./db-utils";
 
 export const createProjectItem = (transaction) => async (item) => {
-  const type = isHeading(item) ? "headings" : isTask(item) ? "tasks" : "lists";
+  const type = isHeading(item) ? "headings" : "tasks";
   if (item.children) {
     item.children = await Promise.all(
       item.children.map(createProjectItem(transaction))

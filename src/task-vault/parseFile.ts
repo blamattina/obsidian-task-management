@@ -23,46 +23,43 @@ const hasIncompleteTasks = (child: ProjectItem): boolean => {
   return false;
 };
 
-const parse = (item: any, file: TFile): ProjectItem => {
+const parse = (filePath) => (acc: array, item: any): ProjectItem => {
   switch (item.type) {
     case "heading": {
-      return {
+      acc.push({
         name: convertNodesToMarkdown(...item.children).trim(),
         depth: item.depth,
         position: item.position as Position,
-        filePath: file.path,
-      };
-    }
-
-    case "list": {
-      const children = item.children
-        .map((child: any) => parse(child, file))
-        .filter(identity);
-
-      if (children.length) {
-        return {
-          children,
-          filePath: file.path,
-        };
-      }
+        filePath,
+      });
+      return acc;
     }
 
     case "listItem": {
       if (typeof item.checked === "boolean") {
         const [paragraph, ...others] = item.children;
-        return {
+        acc.push({
           description: convertNodesToMarkdown(paragraph).trim(),
           completed: item.checked as boolean,
-          children: others.map(parse).filter(identity).flat(),
-          position: item.position as Position,
-          filePath: file.path,
-        };
+          children: others.reduce(parse(filePath), []),
+          position: {
+            start: item.position.start,
+            end: paragraph.position.end,
+          },
+          filePath,
+        });
+
+        return acc;
       }
+    }
+    default: {
+      if ("children" in item) {
+        return acc.concat(item.children.reduce(parse(filePath), []));
+      }
+      return acc;
     }
   }
 };
-
-const reducer = (acc: any, item: any, tree: any) => {};
 
 export const parseFile = async function (
   vault: Vault,
@@ -72,16 +69,13 @@ export const parseFile = async function (
 
   const ast = fromMarkdown(fileContents);
   const children = ast.children
-    .map((child) => parse(child, file))
-    .flat()
-    .filter(identity)
+    .reduce(parse(file.path), [])
     .filter((item, index, array) => {
       if (isHeading(item) && index === array.length - 1) return false;
       if (isHeading(item) && isHeading(array[index + 1])) return false;
       return true;
     });
 
-  const completed = children.some(hasIncompleteTasks);
   return {
     name: file.name,
     basename: file.basename,

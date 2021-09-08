@@ -24,10 +24,6 @@ const upgradeFn = (event: any) => {
     keyPath: "id",
     autoIncrement: true,
   });
-  db.createObjectStore("lists", {
-    keyPath: "id",
-    autoIncrement: true,
-  });
   db.createObjectStore("tasks", {
     keyPath: "id",
     autoIncrement: true,
@@ -51,10 +47,7 @@ export class TaskDb {
 
   async addProject(project: Project) {
     return await transact(
-      this.db.transaction(
-        ["projects", "headings", "lists", "tasks"],
-        "readwrite"
-      ),
+      this.db.transaction(["projects", "headings", "tasks"], "readwrite"),
       async (transaction: IDBTransaction) => {
         project.children = await Promise.all(
           project.children.map(createProjectItem(transaction))
@@ -67,10 +60,7 @@ export class TaskDb {
 
   async getProject(projectPath: string): Promise<Project> {
     return await transact(
-      this.db.transaction(
-        ["projects", "headings", "lists", "tasks"],
-        "readwrite"
-      ),
+      this.db.transaction(["projects", "headings", "tasks"], "readwrite"),
       async (transaction: IDBTransaction) => {
         const projectStore = transaction.objectStore("projects");
 
@@ -90,10 +80,7 @@ export class TaskDb {
     sortFn = mostRecentlyUpdated
   ): Promise<any> {
     return await transact(
-      this.db.transaction(
-        ["projects", "headings", "lists", "tasks"],
-        "readwrite"
-      ),
+      this.db.transaction(["projects", "headings", "tasks"], "readwrite"),
       async (transaction: IDBTransaction) => {
         const projectStore = transaction.objectStore("projects");
         let results = (await find(
@@ -112,10 +99,7 @@ export class TaskDb {
 
   async deleteProject(projectPath: string): Promise<Project> {
     return await transact(
-      this.db.transaction(
-        ["projects", "headings", "lists", "tasks"],
-        "readwrite"
-      ),
+      this.db.transaction(["projects", "headings", "tasks"], "readwrite"),
       async (transaction: IDBTransaction) => {
         const projectStore = transaction.objectStore("projects");
 

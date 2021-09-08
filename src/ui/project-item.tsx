@@ -39,26 +39,8 @@ export const ProjectItem = ({
       );
     }
 
-    if (isTask(item)) {
-      return (
-        <Task
-          key={`${item.type}-${item.id}`}
-          task={item}
-          vaultTasks={vaultTasks}
-        >
-          {item.children.map((child: ProjectItemType) => (
-            <ProjectItem
-              key={`project-item-for-${child.type}-${child.id}`}
-              item={child}
-              vaultTasks={vaultTasks}
-            />
-          ))}
-        </Task>
-      );
-    }
-
     return (
-      <>
+      <Task key={`${item.type}-${item.id}`} task={item} vaultTasks={vaultTasks}>
         {item.children.map((child: ProjectItemType) => (
           <ProjectItem
             key={`project-item-for-${child.type}-${child.id}`}
@@ -66,7 +48,7 @@ export const ProjectItem = ({
             vaultTasks={vaultTasks}
           />
         ))}
-      </>
+      </Task>
     );
   }, [item]);
 
