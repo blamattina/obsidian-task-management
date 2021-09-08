@@ -31,33 +31,7 @@ export default class MyPlugin extends Plugin {
   }
 
   async onload() {
-    console.log("loading plugin");
-
     await this.loadSettings();
-
-    this.addRibbonIcon("dice", "Sample Plugin", () => {
-      new Notice("This is a notice!");
-    });
-
-    this.addStatusBarItem().setText("Status Bar Text");
-
-    this.addCommand({
-      id: "open-sample-modal",
-      name: "Open Sample Modal",
-      // callback: () => {
-      //	console.log('Simple Callback');
-      // },
-      checkCallback: (checking: boolean) => {
-        let leaf = this.app.workspace.activeLeaf;
-        if (leaf) {
-          if (!checking) {
-            new SampleModal(this.app).open();
-          }
-          return true;
-        }
-        return false;
-      },
-    });
 
     const { vaultTasks } = this;
 
@@ -67,18 +41,6 @@ export default class MyPlugin extends Plugin {
     });
 
     this.addSettingTab(new SampleSettingTab(this.app, this));
-
-    this.registerCodeMirror((cm: CodeMirror.Editor) => {
-      console.log("codemirror", cm);
-    });
-
-    this.registerDomEvent(document, "click", (evt: MouseEvent) => {
-      console.log("click", evt);
-    });
-
-    this.registerInterval(
-      window.setInterval(() => console.log("setInterval"), 5 * 60 * 1000)
-    );
 
     if (this.app.workspace.layoutReady) {
       this.initialize();
@@ -105,26 +67,12 @@ export default class MyPlugin extends Plugin {
   }
 
   async initialize() {
-    this.app.workspace.getRightLeaf(false).setViewState({
-      type: VIEW_TYPE,
-    });
+    if (!this.app.workspace.getLeavesOfType(VIEW_TYPE).length) {
+      this.app.workspace.getRightLeaf(false).setViewState({
+        type: VIEW_TYPE,
+      });
+    }
     await this.vaultTasks.initialize();
-  }
-}
-
-class SampleModal extends Modal {
-  constructor(app: App) {
-    super(app);
-  }
-
-  onOpen() {
-    let { contentEl } = this;
-    contentEl.setText("Woah!");
-  }
-
-  onClose() {
-    let { contentEl } = this;
-    contentEl.empty();
   }
 }
 
