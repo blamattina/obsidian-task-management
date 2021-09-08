@@ -1,6 +1,12 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { ItemView, WorkspaceLeaf, MarkdownRenderer, TFile } from "obsidian";
+import {
+  ItemView,
+  WorkspaceLeaf,
+  MarkdownRenderer,
+  TFile,
+  Menu,
+} from "obsidian";
 
 import { TaskVault } from "../task-vault";
 import { VIEW_TYPE } from "../constants";

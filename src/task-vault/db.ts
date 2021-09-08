@@ -9,9 +9,6 @@ import { transact, request, initializeDb, find } from "./db-utils";
 const DB = "obsidian-task-management";
 const VERSION = 1;
 const identity = (f) => f;
-const mostRecentlyUpdated = (a: Project, b: Project) => {
-  return b.modifiedAt - a.modifiedAt;
-};
 
 const upgradeFn = (event: any) => {
   const db = event.target.result;
@@ -75,17 +72,14 @@ export class TaskDb {
     );
   }
 
-  async getProjects(
-    predicate = identity,
-    sortFn = mostRecentlyUpdated
-  ): Promise<any> {
+  async getProjects(predicate: Function, sortFn: Function): Promise<any> {
     return await transact(
       this.db.transaction(["projects", "headings", "tasks"], "readwrite"),
       async (transaction: IDBTransaction) => {
         const projectStore = transaction.objectStore("projects");
         let results = (await find(
           projectStore.openCursor(),
-          predicate || identity
+          predicate
         )) as any[];
 
         results = (await Promise.all(

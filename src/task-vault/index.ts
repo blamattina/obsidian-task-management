@@ -4,6 +4,11 @@ import { TaskDb } from "./db";
 import { parseFile } from "./parseFile";
 import { toggleTask } from "./toggleTask";
 
+const incompleteProjects = (p: Project) => p.completed;
+const mostRecentlyUpdated = (a: Project, b: Project) => {
+  return b.modifiedAt - a.modifiedAt;
+};
+
 class TaskVault extends Events {
   private vault: Vault;
   private markdownFiles: any;
@@ -61,8 +66,11 @@ class TaskVault extends Events {
     this.trigger("initialized");
   }
 
-  async getProjects(): Promise<Project[]> {
-    return await this.db.getProjects();
+  async getProjects(
+    predicate = incompleteProjects,
+    sortFn = mostRecentlyUpdated
+  ): Promise<Project[]> {
+    return await this.db.getProjects(predicate, sortFn);
   }
 
   async toggleTaskStatus(task: Task): Promise<void> {

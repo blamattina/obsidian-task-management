@@ -19,18 +19,16 @@ export const TaskLeaf = ({ vaultTasks, openFile }: any) => {
 
   const renderProjects = useCallback(
     () =>
-      projects
-        .filter((project: ProjectType) => project.completed)
-        .map((project: ProjectType) => {
-          return (
-            <Project
-              key={project.path}
-              project={project}
-              vaultTasks={vaultTasks}
-              openFile={openFile}
-            />
-          );
-        }),
+      projects.map((project: ProjectType) => {
+        return (
+          <Project
+            key={project.path}
+            project={project}
+            vaultTasks={vaultTasks}
+            openFile={openFile}
+          />
+        );
+      }),
     [projects]
   );
 
