@@ -20,18 +20,18 @@ export class TaskLeafContainer extends ItemView {
     this.vaultTasks = vaultTasks;
   }
 
-  getViewType(): string {
+  public getViewType(): string {
     return VIEW_TYPE;
   }
-  getDisplayText(): string {
+  public getDisplayText(): string {
     return "Task List";
   }
 
-  getIcon(): string {
+  public getIcon(): string {
     return "checkmark";
   }
 
-  async onOpen(): Promise<void> {
+  public async onOpen(): Promise<void> {
     const container = this.containerEl.children[1];
 
     ReactDOM.render(
@@ -48,6 +48,4 @@ export class TaskLeafContainer extends ItemView {
     const file = await this.app.vault.getAbstractFileByPath(path);
     await leaf.openFile(file as TFile);
   }
-
-  toggleTask(file: any) {}
 }

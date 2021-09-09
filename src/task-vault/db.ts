@@ -1,4 +1,4 @@
-import { Project, ProjectItem, isHeading, isTask } from "./types";
+import { Project, ProjectItem, ProjectQuery, isHeading, isTask } from "./types";
 import {
   createProjectItem,
   readProjectItem,
@@ -8,7 +8,7 @@ import { transact, request, initializeDb, find } from "./db-utils";
 
 const DB = "obsidian-task-management";
 const VERSION = 1;
-const identity = (f) => f;
+const identity = (f: any): any => f;
 
 const upgradeFn = (event: any) => {
   const db = event.target.result;
@@ -72,29 +72,32 @@ export class TaskDb {
     );
   }
 
-  async getProjects(predicate: Function, sortFn: Function): Promise<any> {
+  async getProjects({
+    projectPredicate,
+    projectSort,
+  }: ProjectQuery): Promise<Project[]> {
     return await transact(
       this.db.transaction(["projects", "headings", "tasks"], "readwrite"),
-      async (transaction: IDBTransaction) => {
+      async (transaction: IDBTransaction): Promise<Project[]> => {
         const projectStore = transaction.objectStore("projects");
         let results = (await find(
           projectStore.openCursor(),
-          predicate
+          projectPredicate
         )) as any[];
 
         results = (await Promise.all(
           results.map(hydrateProject(transaction))
         )) as Project[];
 
-        return results.sort(sortFn);
+        return results.sort(projectSort);
       }
     );
   }
 
-  async deleteProject(projectPath: string): Promise<Project> {
+  async deleteProject(projectPath: string): Promise<void> {
     return await transact(
       this.db.transaction(["projects", "headings", "tasks"], "readwrite"),
-      async (transaction: IDBTransaction) => {
+      async (transaction: IDBTransaction): Promise<void> => {
         const projectStore = transaction.objectStore("projects");
 
         const project = (await request(

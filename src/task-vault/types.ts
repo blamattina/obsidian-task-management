@@ -50,3 +50,8 @@ export function isHeading(obj: any): obj is Heading {
 export function isTask(obj: any): obj is Task {
   return obj && typeof obj.completed === "boolean";
 }
+
+export type ProjectQuery = {
+  projectPredicate(project: Project): boolean;
+  projectSort(a: Project, b: Project): number;
+};
