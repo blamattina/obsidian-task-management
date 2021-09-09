@@ -14,7 +14,7 @@ export const createProjectItem = (transaction) => async (item) => {
   return [type, id];
 };
 
-export const readProjectItem = (transaction) => async (
+export const readProjectItem = (transaction, taskPredicate) => async (
   locator: any
 ): Promise<ProjectItem> => {
   const [type, id] = locator;
@@ -22,11 +22,10 @@ export const readProjectItem = (transaction) => async (
   const item = (await request(store.get(id))) as ProjectItem;
   if ("children" in item) {
     item.children = await Promise.all(
-      item.children.map(readProjectItem(transaction))
+      item.children.map(readProjectItem(transaction, taskPredicate))
     );
   }
 
-  // TODO: How do I get IndexedDB to return an object with its key?
   return item;
 };
 

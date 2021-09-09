@@ -1,5 +1,12 @@
 import { Vault, TAbstractFile, TFile, Events } from "obsidian";
-import { Task, Project, ProjectItem, isHeading, isTask } from "./types";
+import {
+  Task,
+  Project,
+  ProjectItem,
+  ProjectQuery,
+  isHeading,
+  isTask,
+} from "./types";
 import { TaskDb } from "./db";
 import { parseFile } from "./parseFile";
 import { toggleTask } from "./toggleTask";
@@ -67,10 +74,13 @@ class TaskVault extends Events {
   }
 
   async getProjects(
-    predicate = incompleteProjects,
-    sortFn = mostRecentlyUpdated
+    projectPredicate = incompleteProjects,
+    projectSort = mostRecentlyUpdated
   ): Promise<Project[]> {
-    return await this.db.getProjects(predicate, sortFn);
+    return await this.db.getProjects({
+      projectPredicate,
+      projectSort,
+    });
   }
 
   async toggleTaskStatus(task: Task): Promise<void> {
@@ -78,4 +88,12 @@ class TaskVault extends Events {
   }
 }
 
-export { TaskVault, Task, Project, ProjectItem, isHeading, isTask };
+export {
+  TaskVault,
+  Task,
+  Project,
+  ProjectItem,
+  ProjectQuery,
+  isHeading,
+  isTask,
+};

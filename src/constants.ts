@@ -1,1 +1,1 @@
-export const VIEW_TYPE = "com.brianlamattina.obsidian-task-management";
+export const VIEW_TYPE = "task-management";
