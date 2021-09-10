@@ -125,11 +125,26 @@ export class TaskDb {
               (task: Task) => !task.completed
             )) as Task[];
 
-            project.children = tasks.map((t) => {
-              t.children = [];
-              return t;
-            });
-            return project;
+            let p = await hydrateProject(transaction)(project);
+
+            const pruneCompleted = (acc, item) => {
+              if ("children" in item) {
+                item.children = item.children.reduceRight(pruneCompleted, []);
+              }
+
+              if ("completed" in item && item.completed) {
+                return acc.concat(item.children);
+              }
+
+              if ("depth" in item && acc[0] && "depth" in acc[0]) return acc;
+              if ("depth" in item && !acc[0]) return acc;
+
+              acc.unshift(item);
+              return acc;
+            };
+
+            p.children = p.children.reduceRight(pruneCompleted, []);
+            return p;
           })
         );
 
