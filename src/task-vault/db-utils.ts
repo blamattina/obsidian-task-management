@@ -21,7 +21,7 @@ export async function transact(
   return promise.then(() => result);
 }
 
-export async function request(request: IDBRequest) {
+export async function request<T>(request: IDBRequest): Promise<T> {
   return new Promise((resolve, reject) => {
     request.onsuccess = (event: any) => resolve(event.target.result);
     request.onerror = reject;

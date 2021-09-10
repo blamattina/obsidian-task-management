@@ -23,7 +23,10 @@ const hasIncompleteTasks = (child: ProjectItem): boolean => {
   return false;
 };
 
-const parse = (filePath) => (acc: array, item: any): ProjectItem => {
+const parse = (filePath: string) => (
+  acc: ProjectItem[],
+  item: any
+): ProjectItem[] => {
   switch (item.type) {
     case "heading": {
       acc.push({

@@ -1,6 +1,11 @@
 import React, { useCallback } from "react";
 import styled from "styled-components";
-import { Project as ProjectType, TaskVault, isHeading } from "../task-vault";
+import {
+  Project as ProjectType,
+  ProjectItem as ProjectItemType,
+  TaskVault,
+  isHeading,
+} from "../task-vault";
 import { ProjectItem } from "./project-item";
 import { RenderedMarkdown } from "./rendered-markdown";
 
@@ -22,10 +27,10 @@ export const Project = ({
 }: {
   project: ProjectType;
   vaultTasks: TaskVault;
-  openFile: Funtion;
+  openFile(path: string): Promise<void>;
 }) => {
   const renderChildren = useCallback(() => {
-    return project.children.map((child) => (
+    return project.children.map((child: ProjectItemType) => (
       <ProjectItem
         key={`project-item-for-${child.type}-${child.id}`}
         item={child}

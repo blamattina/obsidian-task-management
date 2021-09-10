@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from "react";
 import { setIcon } from "obsidian";
 
-export const NavAction = ({ label, icon, isActive }: any) => {
+export const NavAction = ({ label, icon, isActive, onClick }: any) => {
   const div = useRef(null);
 
   useEffect(() => {
@@ -10,5 +10,7 @@ export const NavAction = ({ label, icon, isActive }: any) => {
 
   const classes = `nav-action-button ${isActive ? "is-active" : ""}`;
 
-  return <div className={classes} ref={div} aria-label={label} />;
+  return (
+    <div className={classes} ref={div} aria-label={label} onClick={onClick} />
+  );
 };

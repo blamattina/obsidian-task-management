@@ -1,3 +1,4 @@
+import { Root } from "mdast";
 import { fromMarkdown as mdastFromMarkdown } from "mdast-util-from-markdown";
 import { toMarkdown as mdastToMarkdown } from "mdast-util-to-markdown";
 import { gfmTaskListItem } from "micromark-extension-gfm-task-list-item";
@@ -22,7 +23,7 @@ export const fromMarkdown = function (markdown: string) {
 };
 
 export const toMarkdown = function (tree: object) {
-  return mdastToMarkdown(tree, {
+  return mdastToMarkdown(tree as Root, {
     extensions: [gfmTaskListItemToMarkdown, frontmatterToMarkdown(["yaml"])],
   });
 };

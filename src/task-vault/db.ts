@@ -1,4 +1,11 @@
-import { Project, ProjectItem, ProjectQuery, isHeading, isTask } from "./types";
+import {
+  Project,
+  ProjectItem,
+  ProjectQuery,
+  Task,
+  isHeading,
+  isTask,
+} from "./types";
 import {
   createProjectItem,
   readProjectItem,
@@ -21,13 +28,17 @@ const upgradeFn = (event: any) => {
     keyPath: "id",
     autoIncrement: true,
   });
-  db.createObjectStore("tasks", {
+  const tasks = db.createObjectStore("tasks", {
     keyPath: "id",
     autoIncrement: true,
   });
+
+  tasks.createIndex("filePath", "filePath", { unique: false });
 };
 
-export const hydrateProject = (transaction) => async (project: any) => {
+export const hydrateProject = (transaction: IDBTransaction) => async (
+  project: Project
+) => {
   project.children = await Promise.all(
     project.children.map(readProjectItem(transaction))
   );
@@ -47,7 +58,7 @@ export class TaskDb {
       this.db.transaction(["projects", "headings", "tasks"], "readwrite"),
       async (transaction: IDBTransaction) => {
         project.children = await Promise.all(
-          project.children.map(createProjectItem(transaction))
+          project.children.map(createProjectItem(transaction, project))
         );
         const projectStore = transaction.objectStore("projects");
         return await request(projectStore.put(project));
@@ -90,6 +101,41 @@ export class TaskDb {
         )) as Project[];
 
         return results.sort(projectSort);
+      }
+    );
+  }
+
+  async getTasks(): Promise<Task[]> {
+    return await transact(
+      this.db.transaction(["projects", "headings", "tasks"], "readwrite"),
+      async (transaction: IDBTransaction): Promise<Task[]> => {
+        const tasksStore = transaction.objectStore("tasks");
+        const taskIndex = tasksStore.index("filePath");
+        const projectStore = transaction.objectStore("projects");
+
+        let results = (await find(
+          projectStore.openCursor(),
+          (p) => p.completed
+        )) as any[];
+
+        results = await Promise.all(
+          results.map(async (project) => {
+            let tasks = (await find(
+              taskIndex.openCursor(IDBKeyRange.only(project.path)),
+              (task: Task) => !task.completed
+            )) as Task[];
+
+            project.children = tasks.map((t) => {
+              t.children = [];
+              return t;
+            });
+            return project;
+          })
+        );
+
+        return results.sort((a: Task, b: Task) => {
+          return b.modifiedAt - a.modifiedAt;
+        });
       }
     );
   }
