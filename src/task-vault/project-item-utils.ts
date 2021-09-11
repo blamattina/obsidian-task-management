@@ -59,3 +59,28 @@ export const deleteProjectItem = (transaction: IDBTransaction) => async (
 
   await request(store.delete(id));
 };
+
+const pruneHeading = (item: ProjectItem, nextItem: ProjectItem) => {
+  if (!isHeading(item)) return false;
+  if (!nextItem) return true;
+  if (isHeading(nextItem)) return true;
+  return false;
+};
+
+export const pruneTasks = (taskPredicate: Function) => (
+  acc: ProjectItem[],
+  item: ProjectItem
+): ProjectItem[] => {
+  if (isTask(item)) {
+    item.children = item.children.reduceRight(pruneTasks(taskPredicate), []);
+  }
+
+  if (isTask(item) && !taskPredicate(item)) {
+    return item.children.concat(acc);
+  }
+
+  if (pruneHeading(item, acc[0])) return acc;
+
+  acc.unshift(item);
+  return acc;
+};

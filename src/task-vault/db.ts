@@ -1,8 +1,10 @@
 import {
   Project,
+  StoredProject,
   ProjectItem,
   ProjectQuery,
   Task,
+  TaskPredicate,
   isHeading,
   isTask,
 } from "./types";
@@ -10,6 +12,7 @@ import {
   createProjectItem,
   readProjectItem,
   deleteProjectItem,
+  pruneTasks,
 } from "./project-item-utils";
 import { transact, request, initializeDb, find } from "./db-utils";
 
@@ -36,14 +39,17 @@ const upgradeFn = (event: any) => {
   tasks.createIndex("filePath", "filePath", { unique: false });
 };
 
-export const hydrateProject = (transaction: IDBTransaction) => async (
-  project: Project
-) => {
-  project.children = await Promise.all(
+export const hydrateProject = (
+  transaction: IDBTransaction,
+  taskPredicate: TaskPredicate
+) => async (project: StoredProject): Promise<Project> => {
+  const children = await Promise.all(
     project.children.map(readProjectItem(transaction))
   );
-
-  return project;
+  return {
+    ...project,
+    children: children.reduceRight(pruneTasks(taskPredicate), []),
+  };
 };
 
 export class TaskDb {
@@ -66,91 +72,45 @@ export class TaskDb {
     );
   }
 
-  async getProject(projectPath: string): Promise<Project> {
+  async getProject(
+    projectPath: string,
+    taskPredicate: TaskPredicate
+  ): Promise<Project> {
     return await transact(
       this.db.transaction(["projects", "headings", "tasks"], "readwrite"),
       async (transaction: IDBTransaction) => {
         const projectStore = transaction.objectStore("projects");
 
-        const project = (await request(
+        const project = await request<StoredProject>(
           projectStore.get(projectPath)
-        )) as Project;
+        );
 
         if (!project) return null;
 
-        return await hydrateProject(transaction)(project);
+        return await hydrateProject(transaction, taskPredicate)(project);
       }
     );
   }
 
   async getProjects({
     projectPredicate,
+    taskPredicate,
     projectSort,
   }: ProjectQuery): Promise<Project[]> {
     return await transact(
       this.db.transaction(["projects", "headings", "tasks"], "readwrite"),
       async (transaction: IDBTransaction): Promise<Project[]> => {
         const projectStore = transaction.objectStore("projects");
-        let results = (await find(
+        let results = await find<StoredProject>(
           projectStore.openCursor(),
           projectPredicate
-        )) as any[];
-
-        results = (await Promise.all(
-          results.map(hydrateProject(transaction))
-        )) as Project[];
-
-        return results.sort(projectSort);
-      }
-    );
-  }
-
-  async getTasks(): Promise<Task[]> {
-    return await transact(
-      this.db.transaction(["projects", "headings", "tasks"], "readwrite"),
-      async (transaction: IDBTransaction): Promise<Task[]> => {
-        const tasksStore = transaction.objectStore("tasks");
-        const taskIndex = tasksStore.index("filePath");
-        const projectStore = transaction.objectStore("projects");
-
-        let results = (await find(
-          projectStore.openCursor(),
-          (p) => p.completed
-        )) as any[];
-
-        results = await Promise.all(
-          results.map(async (project) => {
-            let tasks = (await find(
-              taskIndex.openCursor(IDBKeyRange.only(project.path)),
-              (task: Task) => !task.completed
-            )) as Task[];
-
-            let p = await hydrateProject(transaction)(project);
-
-            const pruneCompleted = (acc, item) => {
-              if ("children" in item) {
-                item.children = item.children.reduceRight(pruneCompleted, []);
-              }
-
-              if ("completed" in item && item.completed) {
-                return acc.concat(item.children);
-              }
-
-              if ("depth" in item && acc[0] && "depth" in acc[0]) return acc;
-              if ("depth" in item && !acc[0]) return acc;
-
-              acc.unshift(item);
-              return acc;
-            };
-
-            p.children = p.children.reduceRight(pruneCompleted, []);
-            return p;
-          })
         );
 
-        return results.sort((a: Task, b: Task) => {
-          return b.modifiedAt - a.modifiedAt;
-        });
+        results = await Promise.all<Project>(
+          results.map(hydrateProject(transaction, taskPredicate))
+        );
+
+        return results.sort(projectSort);
       }
     );
   }

@@ -11,6 +11,7 @@ import { TaskDb } from "./db";
 import { parseFile } from "./parseFile";
 import { toggleTask } from "./toggleTask";
 
+const identity = (f: any): any => f;
 const incompleteProjects = (p: Project) => p.completed;
 const mostRecentlyUpdated = (a: Project, b: Project) => {
   return b.modifiedAt - a.modifiedAt;
@@ -53,7 +54,7 @@ class TaskVault extends Events {
     await this.db.initialize();
 
     for (const file of files) {
-      const existingProject = await this.db.getProject(file.path);
+      const existingProject = await this.db.getProject(file.path, identity);
 
       if (existingProject && existingProject.modifiedAt === file.stat.mtime) {
         console.log(`Skipping ${file.path}`);
@@ -73,22 +74,16 @@ class TaskVault extends Events {
     this.trigger("initialized");
   }
 
-  async getProjects(
-    projectPredicate = incompleteProjects,
-    projectSort = mostRecentlyUpdated
-  ): Promise<Project[]> {
+  async getProjects({
+    projectPredicate,
+    taskPredicate,
+    projectSort,
+  }: ProjectQuery): Promise<Project[]> {
     return await this.db.getProjects({
       projectPredicate,
+      taskPredicate,
       projectSort,
     });
-  }
-
-  async getTasks(): Promise<Task[]> {
-    return await this.db.getTasks();
-  }
-
-  async getTasks2(): Promise<Task[]> {
-    return await this.db.getTasks2();
   }
 
   async toggleTaskStatus(task: Task): Promise<void> {

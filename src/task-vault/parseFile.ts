@@ -85,7 +85,7 @@ export const parseFile = async function (
     path: file.path,
     createdAt: file.stat.ctime,
     modifiedAt: file.stat.mtime,
-    completed: children.some(hasIncompleteTasks),
+    completed: !children.some(hasIncompleteTasks),
     children,
   };
 };

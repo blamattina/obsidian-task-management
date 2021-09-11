@@ -3,17 +3,17 @@ import styled from "styled-components";
 import { Project } from "./project";
 import { Project as ProjectType } from "../task-vault";
 
-export const ProjectPanel = ({ vaultTasks, openFile }: any) => {
+export const ProjectPanel = ({ vaultTasks, openFile, query }: any) => {
   const [projects, setProjects] = useState<ProjectType[]>([]);
 
   const getProjects = useCallback(() => {
     const get = async () => {
-      const projects = await vaultTasks.getProjects();
+      const projects = await vaultTasks.getProjects(query);
       setProjects(projects);
     };
 
     get();
-  }, [vaultTasks]);
+  }, [vaultTasks, query]);
 
   useEffect(() => {
     vaultTasks.on("initialized", getProjects);
@@ -24,7 +24,7 @@ export const ProjectPanel = ({ vaultTasks, openFile }: any) => {
       vaultTasks.off("initialized", getProjects);
       vaultTasks.off("update", getProjects);
     };
-  }, [vaultTasks]);
+  }, [vaultTasks, getProjects]);
 
   const renderProjects = useCallback(
     () =>
