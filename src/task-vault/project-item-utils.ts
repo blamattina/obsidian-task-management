@@ -31,9 +31,14 @@ export const createProjectItem = (
   return [type, id];
 };
 
+let readCache = new Map();
 export const readProjectItem = (transaction: IDBTransaction) => async (
   locator: any
 ): Promise<ProjectItem> => {
+  const key = JSON.stringify(locator);
+  if (readCache.has(key)) {
+    return readCache.get(key);
+  }
   const [type, id] = locator;
   const store = transaction.objectStore(type);
   const item = (await request(store.get(id))) as ProjectItem;
@@ -42,6 +47,8 @@ export const readProjectItem = (transaction: IDBTransaction) => async (
       item.children.map(readProjectItem(transaction))
     );
   }
+
+  readCache.set(key, item);
 
   return item;
 };
