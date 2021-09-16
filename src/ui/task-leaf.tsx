@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { ProjectPanel } from "./project-panel";
-import { TaskPanel } from "./task-panel";
 import { NavHeader } from "./nav-header";
 import { NavAction } from "./nav-action";
 import { Project as ProjectType, Task } from "../task-vault/types";
