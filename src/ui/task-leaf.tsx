@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
-import { Project } from "./project";
+import { ProjectPanel } from "./project-panel";
+import { TaskPanel } from "./task-panel";
 import { NavHeader } from "./nav-header";
 import { NavAction } from "./nav-action";
-import { Project as ProjectType, ProjectQuery } from "../task-vault/types";
+import { Project as ProjectType, Task } from "../task-vault/types";
 
 const Panel = styled.div`
   overflow-y: auto;
@@ -12,56 +13,50 @@ const Panel = styled.div`
 `;
 
 enum Actions {
-  INCOMPLETE_PROJECTS,
+  PROJECTS = "PROJECTS",
+  TASKS = "TASKS",
 }
 
+const identity = (f: any): any => f;
+const incomplete = (item: ProjectType | Task) => !item.completed;
+const mostRecentlyUpdated = (a: ProjectType, b: ProjectType) => {
+  return b.modifiedAt - a.modifiedAt;
+};
+
 export const TaskLeaf = ({ vaultTasks, openFile }: any) => {
-  const [projects, setProjects] = useState<ProjectType[]>([]);
   const [selectedAction, setSelectedAction] = useState<Actions>(
-    Actions.INCOMPLETE_PROJECTS
+    Actions.PROJECTS
   );
 
-  const getProjects = useCallback(async () => {
-    const projects = await vaultTasks.getProjects();
-    setProjects(projects);
-  }, [selectedAction, vaultTasks]);
+  const renderPanel = useCallback(() => {
+    switch (selectedAction) {
+      case Actions.PROJECTS: {
+        return <ProjectPanel vaultTasks={vaultTasks} openFile={openFile} />;
+      }
 
-  useEffect(() => {
-    vaultTasks.on("initialized", getProjects);
-    vaultTasks.on("update", getProjects);
-
-    return () => {
-      vaultTasks.off("initialized", getProjects);
-      vaultTasks.off("update", getProjects);
-    };
-  }, [vaultTasks]);
-
-  const renderProjects = useCallback(
-    () =>
-      projects.map((project: ProjectType) => {
-        return (
-          <Project
-            key={project.path}
-            project={project}
-            vaultTasks={vaultTasks}
-            openFile={openFile}
-          />
-        );
-      }),
-    [projects]
-  );
+      case Actions.TASKS: {
+        return <TaskPanel vaultTasks={vaultTasks} openFile={openFile} />;
+      }
+    }
+  }, [selectedAction]);
 
   return (
     <>
       <NavHeader>
         <NavAction
-          label="Incomplete Projects"
+          label="Project view"
           icon="bullet-list"
-          isActive={selectedAction === Actions.INCOMPLETE_PROJECTS}
-          onClick={() => setSelectedAction(Actions.INCOMPLETE_PROJECTS)}
+          isActive={selectedAction === Actions.PROJECTS}
+          onClick={() => setSelectedAction(Actions.PROJECTS)}
+        />
+        <NavAction
+          label="Task view"
+          icon="check-in-circle"
+          isActive={selectedAction === Actions.TASKS}
+          onClick={() => setSelectedAction(Actions.TASKS)}
         />
       </NavHeader>
-      <Panel>{renderProjects()}</Panel>
+      <Panel>{renderPanel()}</Panel>
     </>
   );
 };

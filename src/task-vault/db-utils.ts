@@ -21,7 +21,7 @@ export async function transact(
   return promise.then(() => result);
 }
 
-export async function request(request: IDBRequest) {
+export async function request<T>(request: IDBRequest): Promise<T> {
   return new Promise((resolve, reject) => {
     request.onsuccess = (event: any) => resolve(event.target.result);
     request.onerror = reject;
@@ -47,8 +47,8 @@ export async function initializeDb(
   });
 }
 
-export async function find(request: any, predicate: Function) {
-  const results: any[] = [];
+export async function find<T>(request: any, predicate: Function): Promise<T[]> {
+  const results: T[] = [];
   return new Promise((resolve) => {
     request.onsuccess = (event: any) => {
       const cursor = event.target.result;

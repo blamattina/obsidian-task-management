@@ -43,7 +43,7 @@ export class TaskLeafContainer extends ItemView {
     );
   }
 
-  private async openFile(path: string) {
+  private async openFile(path: string): Promise<void> {
     const leaf = this.app.workspace.getUnpinnedLeaf();
     const file = await this.app.vault.getAbstractFileByPath(path);
     await leaf.openFile(file as TFile);

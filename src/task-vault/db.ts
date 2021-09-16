@@ -1,8 +1,19 @@
-import { Project, ProjectItem, ProjectQuery, isHeading, isTask } from "./types";
+import {
+  Project,
+  StoredProject,
+  StoredTask,
+  ProjectItem,
+  ProjectQuery,
+  Task,
+  TaskPredicate,
+  isHeading,
+  isTask,
+} from "./types";
 import {
   createProjectItem,
   readProjectItem,
   deleteProjectItem,
+  pruneTasks,
 } from "./project-item-utils";
 import { transact, request, initializeDb, find } from "./db-utils";
 
@@ -21,18 +32,25 @@ const upgradeFn = (event: any) => {
     keyPath: "id",
     autoIncrement: true,
   });
-  db.createObjectStore("tasks", {
+  const tasks = db.createObjectStore("tasks", {
     keyPath: "id",
     autoIncrement: true,
   });
+
+  tasks.createIndex("filePath", "filePath", { unique: false });
 };
 
-export const hydrateProject = (transaction) => async (project: any) => {
-  project.children = await Promise.all(
+export const hydrateProject = (
+  transaction: IDBTransaction,
+  taskPredicate: TaskPredicate
+) => async (project: StoredProject): Promise<Project> => {
+  const children = await Promise.all(
     project.children.map(readProjectItem(transaction))
   );
-
-  return project;
+  return {
+    ...project,
+    children: children.reduceRight(pruneTasks(taskPredicate), []),
+  };
 };
 
 export class TaskDb {
@@ -47,7 +65,7 @@ export class TaskDb {
       this.db.transaction(["projects", "headings", "tasks"], "readwrite"),
       async (transaction: IDBTransaction) => {
         project.children = await Promise.all(
-          project.children.map(createProjectItem(transaction))
+          project.children.map(createProjectItem(transaction, project))
         );
         const projectStore = transaction.objectStore("projects");
         return await request(projectStore.put(project));
@@ -55,41 +73,65 @@ export class TaskDb {
     );
   }
 
-  async getProject(projectPath: string): Promise<Project> {
+  async getProject(
+    projectPath: string,
+    taskPredicate: TaskPredicate
+  ): Promise<Project> {
     return await transact(
       this.db.transaction(["projects", "headings", "tasks"], "readwrite"),
       async (transaction: IDBTransaction) => {
         const projectStore = transaction.objectStore("projects");
 
-        const project = (await request(
+        const project = await request<StoredProject>(
           projectStore.get(projectPath)
-        )) as Project;
+        );
 
         if (!project) return null;
 
-        return await hydrateProject(transaction)(project);
+        return await hydrateProject(transaction, taskPredicate)(project);
       }
     );
   }
 
   async getProjects({
     projectPredicate,
+    taskPredicate,
     projectSort,
   }: ProjectQuery): Promise<Project[]> {
     return await transact(
       this.db.transaction(["projects", "headings", "tasks"], "readwrite"),
       async (transaction: IDBTransaction): Promise<Project[]> => {
         const projectStore = transaction.objectStore("projects");
-        let results = (await find(
+        let results = await find<StoredProject>(
           projectStore.openCursor(),
           projectPredicate
-        )) as any[];
+        );
 
-        results = (await Promise.all(
-          results.map(hydrateProject(transaction))
-        )) as Project[];
+        results = await Promise.all<Project>(
+          results.map(hydrateProject(transaction, taskPredicate))
+        );
 
         return results.sort(projectSort);
+      }
+    );
+  }
+
+  async getTasks({ taskPredicate }: any): Promise<Task[]> {
+    return await transact(
+      this.db.transaction(["projects", "headings", "tasks"], "readwrite"),
+      async (transaction: IDBTransaction): Promise<Project[]> => {
+        const tasksStore = transaction.objectStore("tasks");
+        let storedTasks = await find<StoredTask>(
+          tasksStore.openCursor(),
+          taskPredicate
+        );
+
+        const results = storedTasks.map((stored) => ({
+          ...stored,
+          children: [],
+        }));
+
+        return results;
       }
     );
   }

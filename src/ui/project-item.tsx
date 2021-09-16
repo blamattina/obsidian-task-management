@@ -6,7 +6,7 @@ import {
   isHeading,
   isTask,
 } from "../task-vault";
-import { Task } from "./Task";
+import { Task } from "./task";
 import { RenderedMarkdown } from "./rendered-markdown";
 
 const Heading = styled.div`

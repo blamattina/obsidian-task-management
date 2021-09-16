@@ -14,32 +14,28 @@ const Indent = styled.div`
   margin-left: 25px;
 `;
 
-export const Task = ({
-  task,
-  children,
-  vaultTasks,
-}: {
+type Props = {
+  children?: React.ReactNode;
   task: TaskType;
-  children: any;
   vaultTasks: TaskVault;
-}) => {
-  return (
-    <>
-      <StyledTask
-        style={{ display: "flex", alignItems: "baseline" }}
-        className="markdown-preview-view"
-      >
-        <div>
-          <input
-            type="checkbox"
-            checked={task.completed}
-            className="task-list-item-checkbox"
-            onChange={() => vaultTasks.toggleTaskStatus(task)}
-          />
-        </div>
-        <RenderedMarkdown markdown={task.description} />
-      </StyledTask>
-      <Indent>{children}</Indent>
-    </>
-  );
 };
+
+export const Task = ({ children, task, vaultTasks }: Props) => (
+  <>
+    <StyledTask
+      style={{ display: "flex", alignItems: "baseline" }}
+      className="markdown-preview-view"
+    >
+      <div>
+        <input
+          type="checkbox"
+          checked={task.completed}
+          className="task-list-item-checkbox"
+          onChange={() => vaultTasks.toggleTaskStatus(task)}
+        />
+      </div>
+      <RenderedMarkdown markdown={task.description} />
+    </StyledTask>
+    <Indent>{children}</Indent>
+  </>
+);
