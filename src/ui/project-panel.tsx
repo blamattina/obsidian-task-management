@@ -1,19 +1,38 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { Project } from "./project";
+import { Toggle } from "./toggle";
 import { Project as ProjectType } from "../task-vault";
 
-export const ProjectPanel = ({ vaultTasks, openFile, query }: any) => {
+const Option = styled.div`
+  font-size: 12px;
+  padding: 4px 0;
+  display: flex;
+  justify-content: space-between;
+`;
+
+const identity = (f: any): any => f;
+const incomplete = (item: ProjectType | Task) => !item.completed;
+const mostRecentlyUpdated = (a: ProjectType, b: ProjectType) => {
+  return b.modifiedAt - a.modifiedAt;
+};
+
+export const ProjectPanel = ({ vaultTasks, openFile }: any) => {
   const [projects, setProjects] = useState<ProjectType[]>([]);
+  const [showCompletedTasks, setShowCompletedTasks] = useState<boolean>(false);
 
   const getProjects = useCallback(() => {
     const get = async () => {
-      const projects = await vaultTasks.getProjects(query);
+      const projects = await vaultTasks.getProjects({
+        projectPredicate: showCompletedTasks ? identity : incomplete,
+        taskPredicate: showCompletedTasks ? identity : incomplete,
+        projectSort: mostRecentlyUpdated,
+      });
       setProjects(projects);
     };
 
     get();
-  }, [vaultTasks, query]);
+  }, [vaultTasks, showCompletedTasks]);
 
   useEffect(() => {
     vaultTasks.on("initialized", getProjects);
@@ -39,5 +58,16 @@ export const ProjectPanel = ({ vaultTasks, openFile, query }: any) => {
     [projects]
   );
 
-  return <>{renderProjects()}</>;
+  return (
+    <>
+      <Option>
+        Show completed tasks
+        <Toggle
+          enabled={showCompletedTasks}
+          onClick={() => setShowCompletedTasks((show) => !show)}
+        />
+      </Option>
+      {renderProjects()}
+    </>
+  );
 };

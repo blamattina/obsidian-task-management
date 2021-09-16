@@ -12,8 +12,8 @@ const Panel = styled.div`
 `;
 
 enum Actions {
-  INCOMPLETE_PROJECTS = "INCOMPLETE_PROJECTS",
-  INCOMPLETE_TASKS = "INCOMPLETE_TASKS",
+  PROJECTS = "PROJECTS",
+  TASKS = "TASKS",
 }
 
 const identity = (f: any): any => f;
@@ -24,37 +24,17 @@ const mostRecentlyUpdated = (a: ProjectType, b: ProjectType) => {
 
 export const TaskLeaf = ({ vaultTasks, openFile }: any) => {
   const [selectedAction, setSelectedAction] = useState<Actions>(
-    Actions.INCOMPLETE_PROJECTS
+    Actions.PROJECTS
   );
 
   const renderPanel = useCallback(() => {
     switch (selectedAction) {
-      case Actions.INCOMPLETE_PROJECTS: {
-        return (
-          <ProjectPanel
-            vaultTasks={vaultTasks}
-            openFile={openFile}
-            query={{
-              projectPredicate: incomplete,
-              taskPredicate: identity,
-              projectSort: mostRecentlyUpdated,
-            }}
-          />
-        );
+      case Actions.PROJECTS: {
+        return <ProjectPanel vaultTasks={vaultTasks} openFile={openFile} />;
       }
 
-      case Actions.INCOMPLETE_TASKS: {
-        return (
-          <ProjectPanel
-            vaultTasks={vaultTasks}
-            openFile={openFile}
-            query={{
-              projectPredicate: incomplete,
-              taskPredicate: incomplete,
-              projectSort: mostRecentlyUpdated,
-            }}
-          />
-        );
+      case Actions.TASKS: {
+        return <ProjectPanel vaultTasks={vaultTasks} openFile={openFile} />;
       }
     }
   }, [selectedAction]);
@@ -63,16 +43,16 @@ export const TaskLeaf = ({ vaultTasks, openFile }: any) => {
     <>
       <NavHeader>
         <NavAction
-          label="Incomplete Projects"
+          label="Project view"
           icon="bullet-list"
-          isActive={selectedAction === Actions.INCOMPLETE_PROJECTS}
-          onClick={() => setSelectedAction(Actions.INCOMPLETE_PROJECTS)}
+          isActive={selectedAction === Actions.PROJECTS}
+          onClick={() => setSelectedAction(Actions.PROJECTS)}
         />
         <NavAction
-          label="Incomplete Tasks"
+          label="Task view"
           icon="check-in-circle"
-          isActive={selectedAction === Actions.INCOMPLETE_TASKS}
-          onClick={() => setSelectedAction(Actions.INCOMPLETE_TASKS)}
+          isActive={selectedAction === Actions.TASKS}
+          onClick={() => setSelectedAction(Actions.TASKS)}
         />
       </NavHeader>
       <Panel>{renderPanel()}</Panel>
