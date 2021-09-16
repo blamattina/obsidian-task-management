@@ -86,6 +86,12 @@ class TaskVault extends Events {
     });
   }
 
+  async getTasks({ taskPredicate }: any): Promise<Task[]> {
+    return await this.db.getTasks({
+      taskPredicate,
+    });
+  }
+
   async toggleTaskStatus(task: Task): Promise<void> {
     await toggleTask(this.vault, task);
   }

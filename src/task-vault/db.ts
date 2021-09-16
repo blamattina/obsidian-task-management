@@ -1,6 +1,7 @@
 import {
   Project,
   StoredProject,
+  StoredTask,
   ProjectItem,
   ProjectQuery,
   Task,
@@ -111,6 +112,26 @@ export class TaskDb {
         );
 
         return results.sort(projectSort);
+      }
+    );
+  }
+
+  async getTasks({ taskPredicate }: any): Promise<Task[]> {
+    return await transact(
+      this.db.transaction(["projects", "headings", "tasks"], "readwrite"),
+      async (transaction: IDBTransaction): Promise<Project[]> => {
+        const tasksStore = transaction.objectStore("tasks");
+        let storedTasks = await find<StoredTask>(
+          tasksStore.openCursor(),
+          taskPredicate
+        );
+
+        const results = storedTasks.map((stored) => ({
+          ...stored,
+          children: [],
+        }));
+
+        return results;
       }
     );
   }
