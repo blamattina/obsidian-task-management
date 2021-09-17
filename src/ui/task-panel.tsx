@@ -25,6 +25,7 @@ export const TaskPanel = ({ vaultTasks, openFile }: any) => {
     const get = async () => {
       const tasks = await vaultTasks.getTasks({
         taskPredicate: showCompletedTasks ? identity : incomplete,
+        taskSort: mostRecentlyUpdated,
       });
       setTasks(tasks);
     };

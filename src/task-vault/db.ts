@@ -116,7 +116,7 @@ export class TaskDb {
     );
   }
 
-  async getTasks({ taskPredicate }: any): Promise<Task[]> {
+  async getTasks({ taskPredicate, taskSort }: any): Promise<Task[]> {
     return await transact(
       this.db.transaction(["projects", "headings", "tasks"], "readwrite"),
       async (transaction: IDBTransaction): Promise<Project[]> => {
@@ -131,7 +131,7 @@ export class TaskDb {
           children: [],
         }));
 
-        return results;
+        return results.sort(taskSort);
       }
     );
   }

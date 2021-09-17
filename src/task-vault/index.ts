@@ -86,9 +86,10 @@ class TaskVault extends Events {
     });
   }
 
-  async getTasks({ taskPredicate }: any): Promise<Task[]> {
+  async getTasks({ taskPredicate, taskSort }: any): Promise<Task[]> {
     return await this.db.getTasks({
       taskPredicate,
+      taskSort,
     });
   }
 
